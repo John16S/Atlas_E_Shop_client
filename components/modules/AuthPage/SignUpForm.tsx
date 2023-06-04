@@ -1,9 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { IInputs } from '@/types/auth'
+import { toast } from "react-toastify";
 import NameInput from '@/components/elements/AuthPage/NameInput'
 import styles from '@/styles/auth/auth.module.scss'
 import EmailInput from '@/components/elements/AuthPage/EmailInput'
 import PasswordInput from '@/components/elements/AuthPage/PasswordInput'
+import { signUpFx } from '@/app/api/auth'
 
 const SignUpForm = ({ switchForm }: { switchForm: () => void }) => {
     //*Валидация для NameInput
@@ -14,12 +16,24 @@ const SignUpForm = ({ switchForm }: { switchForm: () => void }) => {
         resetField,
     } = useForm<IInputs>() //IInput-интерфейс
 
-    const onSubmit = (data: IInputs) => {
-        console.log(data)
-        resetField('name')
-        resetField('email')
-        resetField('password')
-        switchForm()
+    const onSubmit = async (data: IInputs) => {
+        try{
+            const userData = await signUpFx({
+                url: '/users/signup',
+                username: data.name,
+                email: data.email,
+                password: data.password,
+            })
+
+            console.log(userData)
+
+            resetField('name')
+            resetField('email')
+            resetField('password')
+            switchForm()
+        }catch(e){
+            toast.error((e as Error).message)
+        }
     }
 
     return (
