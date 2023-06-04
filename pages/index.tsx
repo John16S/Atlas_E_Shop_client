@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import AuthPage from '@/components/templates/AuthPage'
+import AuthPage from '@/components/templates/AuthPage/AuthPage'
 
 function Auth() {
   return (
