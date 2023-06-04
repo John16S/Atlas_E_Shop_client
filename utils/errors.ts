@@ -11,6 +11,10 @@ export const showOutError = (error: unknown) => {
             toast.error('Неверное имя пользователя или пароль!')
             return
         }
+        if(axiosError.response.status === HTTPStatus.NOTFOUND){
+            toast.error('404 - Не найдено!')
+            return
+        }
     }
     toast.error((error as Error).message) 
 }
