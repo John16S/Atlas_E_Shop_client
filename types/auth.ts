@@ -21,3 +21,10 @@ export interface ISignUpFx {
     email: string
     password: string
 }
+
+//тип данных котрый отправляется в БД при запросе Входа в систему, в файле app/api/auth
+export interface ISignInFx {
+    url: string
+    username: string
+    password: string
+}
