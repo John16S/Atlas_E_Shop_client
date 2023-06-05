@@ -2,6 +2,7 @@ import { useStore } from "effector-react"
 import { useEffect } from "react"
 import { $mode, setMode } from "@/context/mode"
 
+//*Хук для смены темы
 export const useTheme = () => {
     const mode = useStore($mode)
 

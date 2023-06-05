@@ -1,5 +1,4 @@
 
-
 //*Функция для получения ширины браузера
 export const getWindowWidth = () => {
     const { innerWidth: windowWidth } =

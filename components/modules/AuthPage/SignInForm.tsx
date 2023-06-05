@@ -38,7 +38,7 @@ const SignInForm = () => {
 
             resetField('name')
             resetField('password')
-            route.push('/home') //После успешного входе перекидываем user-а в страницу home
+            route.push('/home') //!После успешного входе перекидываем user-а в страницу home
         }
         catch(e){
             showOutError(e) //*Выводим toast ошибку
