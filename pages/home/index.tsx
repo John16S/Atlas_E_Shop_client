@@ -1,3 +1,4 @@
+import Footer from '@/components/modules/Footer/Footer'
 import Header from '@/components/modules/Header/Header'
 import Head from 'next/head'
 
@@ -24,6 +25,7 @@ function Home() {
                 <div className='overlay'/>
                 <h1>Home Page</h1>
             </main>
+            <Footer/>
         </>
     )
 }
