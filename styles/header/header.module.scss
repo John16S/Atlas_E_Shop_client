@@ -21,6 +21,7 @@
     &__nav {
         grid-column: 4 / 11;
         padding-left: 16px;
+        text-align: center;
 
         @media (max-width: 1140px) {
             grid-column: 3 / 11;
@@ -280,6 +281,7 @@
     }
 }
 
+//! Стили для бургерМеню
 .burger_menu {
     width: 30px;
     height: 20px;

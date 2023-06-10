@@ -20,7 +20,10 @@ function Home() {
                 />
             </Head>
             <Header/>
-            <h1>Home Page</h1>
+            <main>
+                <div className='overlay'/>
+                <h1>Home Page</h1>
+            </main>
         </>
     )
 }

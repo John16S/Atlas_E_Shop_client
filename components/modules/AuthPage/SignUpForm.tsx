@@ -1,4 +1,4 @@
-import { useStore } from 'effector-react';
+import { useStore } from 'effector-react'
 import { useForm } from 'react-hook-form'
 import { IInputs } from '@/types/auth'
 import NameInput from '@/components/elements/AuthPage/NameInput'
@@ -7,17 +7,18 @@ import spinnerStyles from '@/styles/spinner/spinner.module.scss'
 import EmailInput from '@/components/elements/AuthPage/EmailInput'
 import PasswordInput from '@/components/elements/AuthPage/PasswordInput'
 import { signUpFx } from '@/app/api/auth'
-import { showOutError } from '@/utils/errors';
-import { useState } from 'react';
-import { $mode } from '@/context/mode';
+import { showOutError } from '@/utils/errors'
+import { useState } from 'react'
+import { $mode } from '@/context/mode'
 
 const SignUpForm = ({ switchForm }: { switchForm: () => void }) => {
     //*Спинер в кнопке во время загрузки
     const [spinner, setSpinner] = useState(false)
+    //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
     //*если mode = dark, то...
     const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
-    
+
     //*Валидация для NameInput
     const {
         register,
@@ -27,8 +28,9 @@ const SignUpForm = ({ switchForm }: { switchForm: () => void }) => {
     } = useForm<IInputs>() //IInput-интерфейс
 
     const onSubmit = async (data: IInputs) => {
-        try{
+        try {
             setSpinner(true)
+            //!При нажатии на кноопку делаем запрос в БД
             const userData = await signUpFx({
                 url: '/users/signup',
                 username: data.name,
@@ -36,8 +38,8 @@ const SignUpForm = ({ switchForm }: { switchForm: () => void }) => {
                 password: data.password,
             })
 
-            //*Чтобы не стработало анимация перехода при ошибки существующих user-ов 
-            if(!userData){
+            //*Чтобы не стработало анимация перехода при ошибки существующих user-ов
+            if (!userData) {
                 return
             }
 
@@ -45,25 +47,34 @@ const SignUpForm = ({ switchForm }: { switchForm: () => void }) => {
             resetField('email')
             resetField('password')
             switchForm()
-        }
-        catch(e){
+        } catch (e) {
             showOutError(e) //*Выводим toast ошибку
-        }
-        finally{
+        } finally {
             setSpinner(false)
         }
     }
 
     return (
-        <form className={`${styles.form} ${darkModeClass}`} onSubmit={handleSubmit(onSubmit)}>
-            <h2 className={`${styles.form_title} ${styles.title} ${darkModeClass}`}>
+        <form
+            className={`${styles.form} ${darkModeClass}`}
+            onSubmit={handleSubmit(onSubmit)}
+        >
+            <h2
+                className={`${styles.form_title} ${styles.title} ${darkModeClass}`}
+            >
                 Создать аккаунт
             </h2>
             <NameInput register={register} errors={errors} />
             <EmailInput register={register} errors={errors} />
             <PasswordInput register={register} errors={errors} />
-            <button className={`${styles.form__button} ${styles.button} ${styles.submit} ${darkModeClass}`}>
-                {spinner ? <div className={spinnerStyles.spinner}></div> : 'SIGN UP'}
+            <button
+                className={`${styles.form__button} ${styles.button} ${styles.submit} ${darkModeClass}`}
+            >
+                {spinner ? (
+                    <div className={spinnerStyles.spinner}></div>
+                ) : (
+                    'SIGN UP'
+                )}
             </button>
         </form>
     )

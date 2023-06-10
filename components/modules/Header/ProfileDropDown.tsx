@@ -10,6 +10,7 @@ import styles from '../../../styles/profileDropDown/profileDropDown.module.scss'
 
 const ProfileDropDown = forwardRef<HTMLDivElement, IWrappedComponentProps>(
     ({ open, setOpen }, ref) => {
+        //стили для тёмный темы
         const mode = useStore($mode) //получаем доступ к состоянию mode 
         //*если mode = dark, то...
         const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''

@@ -14,9 +14,11 @@ import { $mode } from '@/context/mode';
 const SignInForm = () => {
     //*Спинер в кнопке во время загрузки
     const [spinner, setSpinner] = useState(false)
+    //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
     //*если mode = dark, то...
     const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
+    
     const route = useRouter()
 
     //*Валидация для NameInput
@@ -30,6 +32,7 @@ const SignInForm = () => {
     const onSubmit = async (data: IInputs) => {
         try{
             setSpinner(true)
+            //!При нажатии на кноопку делаем запрос в БД
             await signInFx({
                 url: '/users/login',
                 username: data.name,
@@ -38,7 +41,7 @@ const SignInForm = () => {
 
             resetField('name')
             resetField('password')
-            route.push('/home') //!После успешного входе перекидываем user-а в страницу home
+            route.push('/home') //!После успешного входа перекидываем user-а в страницу home
         }
         catch(e){
             showOutError(e) //*Выводим toast ошибку
