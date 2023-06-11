@@ -1,5 +1,5 @@
-import Footer from '@/components/modules/Footer/Footer'
-import Header from '@/components/modules/Header/Header'
+import Layout from '@/components/layout/Layout'
+import HomePage from '@/components/templates/HomePage/HomePage'
 import Head from 'next/head'
 
 function Home() {
@@ -20,12 +20,13 @@ function Home() {
                     href="/img/logo.png"
                 />
             </Head>
-            <Header/>
-            <main>
-                <div className='overlay'/>
-                <h1>Home Page</h1>
-            </main>
-            <Footer/>
+
+            <Layout>
+                <main>
+                    <HomePage/>
+                    <div className="overlay" />
+                </main>
+            </Layout>
         </>
     )
 }

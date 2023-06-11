@@ -213,3 +213,17 @@ a {
     opacity: 1;
   }
 }
+
+.slick-slide {
+  margin: 0 4px;
+}
+
+@media (max-width: 800px) {
+  .slick-slide {
+    margin: 0 6px;
+  }
+}
+
+.slick-track {
+  padding-top: 0px;
+}

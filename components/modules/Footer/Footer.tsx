@@ -48,47 +48,59 @@ const Footer = () => {
                                 </h3>
                                 <StoreContent />
                             </>
-                            }
-                            {isMedia500 && (
-                                <Accordion 
-                                    title="Магазин"
-                                    titleClass={styles.footer__top__item__title}
-                                    arrowOpenClass={styles.open}>
-                                    <StoreContent />
-                                    <div style={{ height: 17 }}></div>
-                                </Accordion>
-                            )}
+                        }
+                        {isMedia500 && (
+                            <Accordion 
+                                title="Магазин"
+                                titleClass={styles.footer__top__item__title}
+                                arrowOpenClass={styles.open}>
+                                <StoreContent />
+                                <div style={{ height: 17 }}></div>
+                            </Accordion>
+                        )}
                         </div>
                     </div>
                     <div className={styles.footer__top__item}>
-                        <h3 className={styles.footer__top__item__title}>
-                            Контакты
-                        </h3>
-                        <ul className={`${styles.footer__top__item__list} ${styles.footer__top__item__contacts}`}>
-                            <li className={styles.footer__top__item__list}>
-                                <Link href={'/contacts'} passHref legacyBehavior>
-                                    <a className={styles.footer__top__item__list__item__link}>
-                                        <span>Наш адрес:</span>
-                                        <span>г. Череповец, Кирилловское ш., 50А</span>
-                                        <span><MarkerSvg/></span>
+                    {!isMedia500 && 
+                        <>
+                            <h3 className={styles.footer__top__item__title}>
+                                Контакты
+                            </h3>
+                            <ul className={`${styles.footer__top__item__list} ${styles.footer__top__item__contacts}`}>
+                                <li className={styles.footer__top__item__list}>
+                                    <Link href={'/contacts'} passHref legacyBehavior>
+                                        <a className={styles.footer__top__item__list__item__link}>
+                                            <span>Наш адрес:</span>
+                                            <span>г. Череповец, Кирилловское ш., 50А</span>
+                                            <span><MarkerSvg/></span>
+                                        </a>
+                                    </Link>
+                                </li>
+                                <li className={styles.footer__top__item__list}>
+                                    <a href='tel:+79637340982' className={styles.footer__top__item__list__item__link}>
+                                        <span>Наш контактый телефон:</span>
+                                        <span>+7 963-734-09-82</span>
+                                        <span><PhoneSvg/></span>
                                     </a>
-                                </Link>
-                            </li>
-                            <li className={styles.footer__top__item__list}>
-                                <a href='tel:+79637340982' className={styles.footer__top__item__list__item__link}>
-                                    <span>Наш контактый телефон:</span>
-                                    <span>+7 963-734-09-82</span>
-                                    <span><PhoneSvg/></span>
-                                </a>
-                            </li>
-                            <li className={styles.footer__top__item__list}>
-                                <a href='mailto:atlas.che35@gmail.com' className={styles.footer__top__item__list__item__link}>
-                                    <span>E-mail:</span>
-                                    <span>atlas.che35@gmail.com</span>
-                                    <span><MailSvg/></span>
-                                </a>
-                            </li>
-                        </ul>
+                                </li>
+                                <li className={styles.footer__top__item__list}>
+                                    <a href='mailto:atlas.che35@gmail.com' className={styles.footer__top__item__list__item__link}>
+                                        <span>E-mail:</span>
+                                        <span>atlas.che35@gmail.com</span>
+                                        <span><MailSvg/></span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </>
+                    }
+                    {isMedia500 && (
+                        <Accordion 
+                            title="Контакты"
+                            titleClass={styles.footer__top__item__title}
+                            arrowOpenClass={styles.open}>
+                            <StoreContent />
+                        </Accordion>
+                    )}
                     </div>
                 </div>
 

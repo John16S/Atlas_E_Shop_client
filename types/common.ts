@@ -1,3 +1,4 @@
+import React from "react"
 import { MultiValue, SingleValue } from "react-select"
 
 export interface IWrappedComponentProps {
@@ -22,4 +23,10 @@ export interface IAccordion {
     // hideArrowClass?: string
     // boxShadowStyle?: string
     // callback?: (arg0: boolean) => void
+}
+
+//*Layout
+export interface ILayout {
+    //Мы передаём children и оборачиваем его header и footer-ом
+    children: React.ReactNode
 }
