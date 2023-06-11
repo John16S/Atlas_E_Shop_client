@@ -1,8 +1,7 @@
-import { chekUserAuthFx } from "@/app/api/auth"
+import { checkUserAuthFx } from "@/app/api/auth"
 import { setUser } from "@/context/user"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
-import { runInContext } from "vm"
 
 const userRedirectByUserCheck = (isAuthPage = false) =>{
   //состояние 
@@ -14,12 +13,12 @@ const userRedirectByUserCheck = (isAuthPage = false) =>{
   useEffect( () =>{
     if(shouldCheckAuth.current){
       shouldCheckAuth.current = false
-      chekUser()
+      checkUser()
     }
   }, [] )
 
-  const chekUser = async () => {
-    const user = await chekUserAuthFx('/users/loginCheck')
+  const checkUser = async () => {
+    const user = await checkUserAuthFx('/users/loginCheck')
 
     //если мы находимся на стр Авторизавции
     if(isAuthPage){

@@ -41,7 +41,7 @@ export const signInFx = createEffect(
     }
 )
 
-export const chekUserAuthFx = createEffect(async (url: string) => {
+export const checkUserAuthFx = createEffect(async (url: string) => {
     try{
         const { data } = await api.get(url)
         return data
@@ -55,6 +55,16 @@ export const chekUserAuthFx = createEffect(async (url: string) => {
             }
         }
 
+        toast.error((e as Error).message)
+    }
+})
+
+export const logoutFx = createEffect(async (url: string) => {
+    //не будем никаких данных возвращать, просто делаем запрос
+    try{
+        await api.get(url)
+    }
+    catch(e){
         toast.error((e as Error).message)
     }
 })

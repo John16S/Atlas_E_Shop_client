@@ -17,7 +17,7 @@ const ModeToggler = () => {
     //чтобы также после перезагрузки стр. установился тема
     useEffect(() => {
         document.body.classList.add(mode === 'dark' ? 'dark_mode' : 'body') //проверяем если mode = dark, то устанавливаем класс dark_mode
-    }, [])
+    }, [mode])
 
     //из функции возвращаем JSX
     return (
