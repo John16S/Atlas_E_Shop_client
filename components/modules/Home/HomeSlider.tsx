@@ -57,9 +57,9 @@ const HomeSlider = ({ items, spinner, goToGoodPage }: IHomeSlider) => {
     return (
         <Slider {...settings} className={styles.home__slider}>
             {spinner? (
-                [...Array(8)].map( (item) => (
+                [...Array(8)].map( (_, i) => (
                     <div className={`${skeletonStyles.skeleton__item} ${mode === 'dark' ? `${skeletonStyles.dark_mode}` : ''}`} 
-                        key={item} style={width}
+                        key={i} style={width}
                     >
                         <div className={skeletonStyles.skeleton__item__light}/>
                     </div>

@@ -1,6 +1,6 @@
 import { getBestsellersOrNewGoodsFx } from '@/app/api/goods'
-import CartAlert from '@/components/modules/HomePage/CartAlert'
-import HomeSlider from '@/components/modules/HomePage/HomeSlider'
+import CartAlert from '@/components/modules/Home/CartAlert'
+import HomeSlider from '@/components/modules/Home/HomeSlider'
 import { $mode } from '@/context/mode'
 import { $shoppingCart } from '@/context/shopping-cart'
 import styles from '@/styles/home/index.module.scss'

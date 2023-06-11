@@ -8,7 +8,7 @@ export const getBestsellersOrNewGoodsFx = createEffect(async (url: string) => {
   return data
 })
 
-export const getBoilerPartsFx = createEffect(async (url: string) => {
+export const getGoodsFx = createEffect(async (url: string) => {
   const { data } = await api.get(url)
 
   return data

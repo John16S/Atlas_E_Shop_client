@@ -9,3 +9,9 @@ export const getWindowWidth = () => {
 //*Функция для форматировании цены на слайдере
 export const formatPrice = (x: number) =>
     x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+
+//*Функция для работа с сортировкой
+export const createSelectOption = (value: string | number) => ({
+    value,
+    label: value,
+})
