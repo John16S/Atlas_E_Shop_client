@@ -1,9 +1,12 @@
 import { getBestsellersOrNewGoodsFx } from '@/app/api/goods'
-import HomeSlider from '@/components/modules/HomePage/HomeSlider'   
+import CartAlert from '@/components/modules/HomePage/CartAlert'
+import HomeSlider from '@/components/modules/HomePage/HomeSlider'
 import { $mode } from '@/context/mode'
+import { $shoppingCart } from '@/context/shopping-cart'
 import styles from '@/styles/home/index.module.scss'
 import { IGoods } from '@/types/goods'
 import { useStore } from 'effector-react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -16,6 +19,11 @@ const HomePage = () => {
     const [newGoods, setNewGoods] = useState<IGoods>({} as IGoods)
     const [bestsellers, setBestsellers] = useState<IGoods>({} as IGoods)
     const [spinner, setSpinner] = useState(false)
+    //*создаём состояние при котором показывается CartAlert
+    const shoppingCart = useStore($shoppingCart) //состояние корзины (есть ли твм товары)
+    const [showAlert, setShowAlert] = useState(!!shoppingCart.length)
+
+    const closeAlert = () => setShowAlert(false) //функция для закрытия alert
 
     //*Будем делать запрос на сервер
     const loadGoods = async () => {
@@ -43,7 +51,22 @@ const HomePage = () => {
 
     return (
         <section className={styles.home}>
-            
+            <AnimatePresence>
+                {showAlert && (
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
+                        className={`${styles.home__alert} ${darkModeClass}`}
+                    >
+                        <CartAlert
+                            count={shoppingCart.length}
+                            closeAlert={closeAlert}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <h2 className={`${styles.home__title} ${darkModeClass}`}>
                 Одежда для всей семьи
             </h2>
@@ -54,7 +77,7 @@ const HomePage = () => {
                 </h3>
                 <HomeSlider items={bestsellers.rows || []} spinner={spinner} />
             </div>
-            
+
             <div className={styles.home__goods}>
                 <h3 className={`${styles.home__goods__title} ${darkModeClass}`}>
                     Новинки

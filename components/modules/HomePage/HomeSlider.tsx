@@ -47,7 +47,6 @@ const HomeSlider = ({ items, spinner, goToGoodPage }: IHomeSlider) => {
         speed: 500,
         nextArrow: <NewsSliderNextArrow modeClass={darkModeClass}/>,
         prevArrow: <NewsSliderPrevArrow modeClass={darkModeClass}/>,
-        // slidesToShow: items.length >= 4 ? (isMedia1030 ? 3 : 4) : items.length - 1,
         slidesToScroll: isMedia768 ? 1 : 2
     }
 
