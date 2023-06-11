@@ -1,12 +1,15 @@
 import Layout from '@/components/layout/Layout'
 import HomePage from '@/components/templates/HomePage/HomePage'
+import userRedirectByUserCheck from '@/hooks/useRedirectByUserCheck'
 import Head from 'next/head'
 
 function Home() {
+    const { shoudLoadContent } = userRedirectByUserCheck()
+
     return (
         <>
             <Head>
-                <title>Atlas</title>
+                <title>Atlas | {shoudLoadContent ? 'Главная страница' : ''}</title>
                 <meta charSet="UTF-8" />
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
                 <meta
@@ -21,12 +24,14 @@ function Home() {
                 />
             </Head>
 
-            <Layout>
-                <main>
-                    <HomePage/>
-                    <div className="overlay" />
-                </main>
-            </Layout>
+            {shoudLoadContent && (
+                <Layout>
+                    <main>
+                        <HomePage/>
+                        <div className="overlay" />
+                    </main>
+                </Layout>
+            )}
         </>
     )
 }

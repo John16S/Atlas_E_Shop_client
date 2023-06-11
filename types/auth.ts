@@ -28,3 +28,10 @@ export interface ISignInFx {
     username: string
     password: string
 }
+
+//для профиля на главной странице
+export interface IUser {
+    userName: string
+    userId: number | string
+    email: string
+}
