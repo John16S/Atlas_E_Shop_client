@@ -8,11 +8,14 @@ const STEP = 0.1
 const MIN = 0
 const MAX = 10000
 
-const PriceRange = ( { priceRange, setPriceRange, setIsPriceRangeChanged}:IPriceRangeProps ) => {
+const PriceRange = ({
+    priceRange,
+    setPriceRange,
+    setIsPriceRangeChanged,
+}: IPriceRangeProps) => {
     //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
     const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
-
 
     const handlePriceRangeChange = (values: number[]) => {
         setIsPriceRangeChanged(true)
@@ -21,7 +24,9 @@ const PriceRange = ( { priceRange, setPriceRange, setIsPriceRangeChanged}:IPrice
 
     return (
         <div className={styles.filters__price}>
-            <div className={`${styles.filters__price__inputs} ${darkModeClass}`}>
+            <div
+                className={`${styles.filters__price__inputs} ${darkModeClass}`}
+            >
                 <input
                     type="text"
                     value={Math.ceil(priceRange[0])}

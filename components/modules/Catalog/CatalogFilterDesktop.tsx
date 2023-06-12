@@ -43,7 +43,6 @@ const CatalogFilterDesktop = ({
             </h3>
 
             {/* CATEGORY */}
-            {/*!**********************************************Здесь менять класс если что*************************************************** */}
             <div className={styles.filters__category}>
                 <FilterCategoryAccordion
                     categoryList={category}

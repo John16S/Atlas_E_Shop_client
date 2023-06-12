@@ -20,6 +20,7 @@ const CatalogFilter = ({
     resetFilter,
     isPriceRangeChanged,
     currentPage,
+    setIsFilterInQuery,
 }: ICatalogFilterProps) => {
     const isMobile = useMediaQuery(820)
     const [spinner, setSpinner] = useState(false)
@@ -30,6 +31,7 @@ const CatalogFilter = ({
     const subcategory = useStore($goodsSubcategory)
 
     const applyFilters = async () => {
+        setIsFilterInQuery(true)
         try {
             setSpinner(true)
             const priceFrom = Math.ceil(priceRange[0])
@@ -79,8 +81,6 @@ const CatalogFilter = ({
                 const data = await getGoodsFx(
                     `/goods/?limit=20&offset=${initialPage}${priceQuery}${categoryQuery}${subcategoryQuery}`
                 )
-                console.log(data)
-
                 setFilteredGood(data)
                 return
             }
@@ -101,7 +101,44 @@ const CatalogFilter = ({
                 const data = await getGoodsFx(
                     `/goods/?limit=20&offset=${initialPage}${priceQuery}`
                 )
-                console.log(data)
+                setFilteredGood(data)
+            }
+
+            if (categories.length) {
+                router.push(
+                    {
+                        query: {
+                            ...router.query,
+                            categ: encodedCategoryQuery,
+                            offset: initialPage + 1,
+                        },
+                    },
+                    undefined,
+                    { shallow: true }
+                )
+
+                const data = await getGoodsFx(
+                    `/goods/?limit=20&offset=${initialPage}${categoryQuery}`
+                )
+                setFilteredGood(data)
+            }
+
+            if (subcategories.length) {
+                router.push(
+                    {
+                        query: {
+                            ...router.query,
+                            subcateg: encodedSubcategoryQuery,
+                            offset: initialPage + 1,
+                        },
+                    },
+                    undefined,
+                    { shallow: true }
+                )
+
+                const data = await getGoodsFx(
+                    `/goods/?limit=20&offset=${initialPage}${subcategoryQuery}`
+                )
                 setFilteredGood(data)
             }
 
@@ -122,17 +159,18 @@ const CatalogFilter = ({
                 const data = await getGoodsFx(
                     `/goods/?limit=20&offset=${initialPage}${categoryQuery}${subcategoryQuery}`
                 )
-                console.log(data)
                 setFilteredGood(data)
                 return
             }
 
-            if (categories.length) {
+            if (categories.length && isPriceRangeChanged) {
                 router.push(
                     {
                         query: {
                             ...router.query,
                             categ: encodedCategoryQuery,
+                            priceFrom,
+                            priceTo,
                             offset: initialPage + 1,
                         },
                     },
@@ -141,18 +179,19 @@ const CatalogFilter = ({
                 )
 
                 const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${categoryQuery}`
+                    `/goods/?limit=20&offset=${initialPage}${priceQuery}${categoryQuery}`
                 )
-                console.log(data)
                 setFilteredGood(data)
             }
 
-            if (subcategories.length) {
+            if (subcategories.length && isPriceRangeChanged) {
                 router.push(
                     {
                         query: {
                             ...router.query,
                             subcateg: encodedSubcategoryQuery,
+                            priceFrom,
+                            priceTo,
                             offset: initialPage + 1,
                         },
                     },
@@ -161,15 +200,11 @@ const CatalogFilter = ({
                 )
 
                 const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${subcategoryQuery}`
+                    `/goods/?limit=20&offset=${initialPage}${priceQuery}${subcategoryQuery}`
                 )
-                console.log(data)
                 setFilteredGood(data)
             }
 
-            console.log(priceQuery)
-            console.log(categoryQuery)
-            console.log(subcategoryQuery)
         } catch (e) {
             toast.error((e as Error).message)
         } finally {

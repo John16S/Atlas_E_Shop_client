@@ -5,6 +5,7 @@ import CategoryBlock from '@/components/modules/Catalog/CategoryBlock'
 import FilterSelect from '@/components/modules/Catalog/FilterSelect'
 import { getGoodsFx } from '@/app/api/goods'
 import {
+    $filteredGood,
     $goods,
     $goodsCategory,
     $goodsSubcategory,
@@ -58,10 +59,12 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
         isAnySubcategoryChecked
     )
 
+    const filteredGood = useStore($filteredGood) //получаем доступ к состоянию отфильтрованного товара
+    const [isFilterInQuery, setIsFilterInQuery] = useState(false)
     //*это функция работает только при певом рендеринге
     useEffect(() => {
         loadGoods()
-    }, [])
+    }, [filteredGood, isFilterInQuery])
 
     console.log(goods.rows)
 
@@ -95,17 +98,23 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                         { shallow: true }
                     )
                     setCurrentPage(0)
-                    setGoods(data)
+                    setGoods(isFilterInQuery ? filteredGood : data)
                     return
                 }
+                //*только если isValidOffset, тогда делаем запрос на сервер
+                const offset = +query.offset - 1
+                const result = await getGoodsFx(
+                    `/goods?limit=20&offset=${offset}`
+                )
+
+                setCurrentPage(offset)
+                setGoods(isFilterInQuery ? filteredGood : result)
+                return
             }
 
-            //*только после всех проверок делаем запрос на сервер
-            const offset = +query.offset - 1
-            const result = await getGoodsFx(`/goods/?limit=20&offset=${offset}`)
-
-            setCurrentPage(offset)
-            setGoods(result)
+            //*иначе, заполняем по умолчанию
+            setCurrentPage(0)
+            setGoods(isFilterInQuery ? filteredGood : data)
         } catch (e) {
             toast.error((e as Error).message)
         } finally {
@@ -225,6 +234,7 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                             resetFilter={resetFilter}
                             isPriceRangeChanged={isPriceRangeChanged}
                             currentPage={currentPage}
+                            setIsFilterInQuery={setIsFilterInQuery}
                         />
 
                         {/* Блок списка товаров */}
