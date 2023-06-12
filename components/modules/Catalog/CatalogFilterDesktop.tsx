@@ -21,7 +21,8 @@ const CatalogFilterDesktop = ({
     setIsPriceRangeChanged,
     resetFilterBtnDisabled,
     spinner,
-    resetFilter
+    resetFilter,
+    applyFilters
 }: ICatalogFilterDesktop) => {
     //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
@@ -84,6 +85,7 @@ const CatalogFilterDesktop = ({
                 <button
                     className={styles.filters__actions__show}
                     disabled={spinner || resetFilterBtnDisabled}
+                    onClick={applyFilters}
                 >
                     {spinner ? <span className={spinnerStyles.spinner} style={{top: 6, left: '47%'}}/> : 'Показать'}
                 </button>

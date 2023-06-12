@@ -12,6 +12,7 @@ export const setGoodsCheapFirst = goods.createEvent()
 export const setGoodsExpensiveFirst = goods.createEvent()
 export const setGoodsByPopularity = goods.createEvent()
 
+
 export const $goods = goods
     .createStore<IGoods>({} as IGoods)
     .on(setGoods, (_, goods) => goods)
@@ -77,3 +78,9 @@ export const $goodsSubcategory = goods
             checked: payload.checked 
         }),
     ])
+
+
+export const setFilteredGood = goods.createEvent<IGoods>()
+export const $filteredGood = goods
+    .createStore<IGoods>({} as IGoods)
+    .on(setFilteredGood, (_, goods) => goods)

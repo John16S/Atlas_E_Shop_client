@@ -24,7 +24,6 @@ import { useRouter } from 'next/router'
 import { IGoods } from '@/types/goods'
 import CatalogFilter from '@/components/modules/Catalog/CatalogFiltres'
 import styles from '@/styles/catalog/index.module.scss'
-import PriceRange from '@/components/modules/Catalog/PriceRange'
 
 const CatalogPage = ({ query }: { query: IQueryParams }) => {
     //стили для тёмный темы
@@ -160,10 +159,10 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
             const data = await getGoodsFx('/goods/?limit=20&offset=0')
 
             setGoodsCategory(
-                category.map((item) => ({...item, checked: false}))
+                category.map((item) => ({ ...item, checked: false }))
             )
             setGoodsSubcategory(
-                subcategory.map((item) => ({...item, checked: false}))
+                subcategory.map((item) => ({ ...item, checked: false }))
             )
 
             setGoods(data)
@@ -224,6 +223,8 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                             setIsPriceRangeChanged={setIsPriceRangeChanged}
                             resetFilterBtnDisabled={resetFilterBtnDisabled}
                             resetFilter={resetFilter}
+                            isPriceRangeChanged={isPriceRangeChanged}
+                            currentPage={currentPage}
                         />
 
                         {/* Блок списка товаров */}
