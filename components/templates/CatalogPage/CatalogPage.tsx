@@ -4,16 +4,22 @@ import { AnimatePresence } from 'framer-motion'
 import CategoryBlock from '@/components/modules/Catalog/CategoryBlock'
 import FilterSelect from '@/components/modules/Catalog/FilterSelect'
 import { getGoodsFx } from '@/app/api/goods'
-import { $goods, setGoods } from '@/context/goods'
+import {
+    $goods,
+    $goodsCategory,
+    $goodsSubcategory,
+    setGoods,
+} from '@/context/goods'
 import { toast } from 'react-toastify'
 import { useEffect, useState } from 'react'
-import styles from '@/styles/catalog/index.module.scss'
 import skeletonStyles from '@/styles/skeleton/index.module.scss'
 import CatalogItem from '@/components/modules/Catalog/CatalogItem'
 import ReactPaginate from 'react-paginate'
 import { IQueryParams } from '@/types/catalog'
 import { useRouter } from 'next/router'
 import { IGoods } from '@/types/goods'
+import CatalogFilter from '@/components/modules/Catalog/CatalogFiltres'
+import styles from '@/styles/catalog/index.module.scss'
 
 const CatalogPage = ({ query }: { query: IQueryParams }) => {
     //стили для тёмный темы
@@ -22,6 +28,8 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
 
     const goods = useStore($goods) //получаем доступ к состоянию товара
     const [spinner, setSpinner] = useState(false)
+    const [priceRange, setPriceRange] = useState([1000, 9000])
+    const [isPriceRangeChanged, setIsPriceRangeChanged] = useState(false)
 
     //*работа с пагинацией
     //* проверка (есть ли он вообще && чиссло ли это && больше 0)
@@ -32,6 +40,19 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
         isValidOffset ? +query.offset - 1 : 0
     )
     const router = useRouter()
+
+    //*Получаем доступ к состояниям категорий и подкатегорий (checkbox) для фильтрации
+    const category = useStore($goodsCategory)
+    const subcategory = useStore($goodsSubcategory)
+    //*всё для кнопки "Сбросить фильтр"
+
+    const isAnyCategoryChecked = category.some((item) => item.checked)
+    const isAnySubcategoryChecked = subcategory.some((item) => item.checked)
+    const resetFilterBtnDisabled = !(
+        isPriceRangeChanged ||
+        isAnyCategoryChecked ||
+        isAnySubcategoryChecked
+    )
 
     //*это функция работает только при певом рендеринге
     useEffect(() => {
@@ -73,7 +94,6 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                     setGoods(data)
                     return
                 }
-                
             }
 
             //*только после всех проверок делаем запрос на сервер
@@ -82,7 +102,6 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
 
             setCurrentPage(offset)
             setGoods(result)
-        
         } catch (e) {
             toast.error((e as Error).message)
         } finally {
@@ -90,27 +109,29 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
         }
     }
 
-    const resetPagination = (data : IGoods) => {
+    const resetPagination = (data: IGoods) => {
         setCurrentPage(0)
         setGoods(data)
     }
 
     //*Функция при переходе по пагинации загружались другие данные
-    const handlePaggeChange = async({selected} : {selected: number}) => {
+    const handlePaggeChange = async ({ selected }: { selected: number }) => {
         try {
             const data = await getGoodsFx('/goods/?limit=20&offset=0')
 
-            if(selected > pagesCount){
+            if (selected > pagesCount) {
                 resetPagination(data)
                 return
             }
 
-            if(isValidOffset && +query.offset > Math.ceil(data.count / 20)){
+            if (isValidOffset && +query.offset > Math.ceil(data.count / 20)) {
                 resetPagination(data)
                 return
             }
 
-            const result = await getGoodsFx(`/goods/?limit=20&offset=${selected}`)
+            const result = await getGoodsFx(
+                `/goods/?limit=20&offset=${selected}`
+            )
 
             router.push(
                 {
@@ -125,9 +146,7 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
 
             setCurrentPage(selected)
             setGoods(result)
-        } catch (e) {
-            
-        }
+        } catch (e) {}
     }
 
     return (
@@ -151,7 +170,7 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                     <div className={styles.catalog__top__inner}>
                         <button
                             className={`${styles.catalog__top__reset} ${darkModeClass}`}
-                            disabled={true}
+                            disabled={resetFilterBtnDisabled}
                         >
                             Сбросить фильтр
                         </button>
@@ -163,7 +182,11 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                 <div className={styles.catalog__bottom}>
                     <div className={styles.catalog__bottom__inner}>
                         {/* Блок фильтра */}
-                        <div className="">Filter</div>
+                        <CatalogFilter
+                            priceRange={priceRange}
+                            setPriceRange={setPriceRange}
+                            setIsPriceRangeChanged={setIsPriceRangeChanged}
+                        />
 
                         {/* Блок списка товаров */}
                         {spinner ? (

@@ -16,11 +16,6 @@ export interface IQueryParams {
   //goodId: string
 }
 
-export interface ICategoryBlockItemProps {
-  item: IFilterCheckboxItem
-  event: Event<IFilterCheckboxItem>
-}
-
 export interface IFilterCheckboxItem {
   title: string
   checked: boolean
@@ -34,6 +29,34 @@ export interface IFilterCategoryAccordionProps {
   setCategory: Event<IFilterCheckboxItem[]>
   updateCategory: Event<IFilterCheckboxItem>
 }
+
+export interface ICatalogFilterProps {
+  priceRange: number[]
+  setPriceRange: (arg0: number[]) => void
+  setIsPriceRangeChanged: (arg0: boolean) => void
+}
+export type IPriceRangeProps = ICatalogFilterProps
+
+export type ICatalogFilterDesktop = ICatalogFilterProps
+
+
+
+
+
+
+
+
+
+
+
+
+
+export interface ICategoryBlockItemProps {
+  item: IFilterCheckboxItem
+  event: Event<IFilterCheckboxItem>
+}
+
+
 
 interface ICatalogBaseTypes {
   priceRange: number[]
@@ -56,7 +79,7 @@ export interface ICatalogFiltersProps
   filtersMobileOpen: boolean
 }
 
-export type IPriceRangeProps = ICatalogBaseTypes
+
 
 export interface ICatalogFilterDesktopProps
   extends ICatalogBaseTypes,
