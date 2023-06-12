@@ -6,19 +6,19 @@ export interface ICategoryBlockProps {
   // categoryList: IFilterCheckboxItem[]
 }
 
+export interface IQueryParams {
+  offset: string
+  first: string
+  category: string
+  subcategory: string
+  priceFrom: string
+  priceTo: string
+  //goodId: string
+}
+
 export interface ICategoryBlockItemProps {
   item: IFilterCheckboxItem
   event: Event<IFilterCheckboxItem>
-}
-
-export interface IQueryParams {
-  offset: string
-  firs: string
-  boiler: string
-  parts: string
-  priceFrom: string
-  priceTo: string
-  partId: string
 }
 
 export interface IFilterCheckboxItem {

@@ -10,8 +10,12 @@ import { useEffect, useState } from 'react'
 import styles from '@/styles/catalog/index.module.scss'
 import skeletonStyles from '@/styles/skeleton/index.module.scss'
 import CatalogItem from '@/components/modules/Catalog/CatalogItem'
+import ReactPaginate from 'react-paginate'
+import { IQueryParams } from '@/types/catalog'
+import { useRouter } from 'next/router'
+import { IGoods } from '@/types/goods'
 
-const CatalogPage = () => {
+const CatalogPage = ({ query }: { query: IQueryParams }) => {
     //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
     const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
@@ -19,20 +23,110 @@ const CatalogPage = () => {
     const goods = useStore($goods) //получаем доступ к состоянию товара
     const [spinner, setSpinner] = useState(false)
 
+    //*работа с пагинацией
+    //* проверка (есть ли он вообще && чиссло ли это && больше 0)
+    const pagesCount = Math.ceil(goods.count / 20) //чтобы всегда было целое число
+    const isValidOffset =
+        query.offset && !isNaN(+query.offset) && +query.offset > 0
+    const [currentPage, setCurrentPage] = useState(
+        isValidOffset ? +query.offset - 1 : 0
+    )
+    const router = useRouter()
+
+    //*это функция работает только при певом рендеринге
     useEffect(() => {
         loadGoods()
     }, [])
 
+    console.log(goods.rows)
+
     const loadGoods = async () => {
         try {
             setSpinner(true)
-            const data = await getGoodsFx('/goods/?limit=50&offset=0')
+            const data = await getGoodsFx('/goods/?limit=20&offset=0')
 
-            setGoods(data)
+            //*проверка, если offset не валидный, то заменяем его на 1
+            if (!isValidOffset) {
+                router.replace({
+                    query: {
+                        offset: 1,
+                    },
+                })
+                resetPagination(data)
+                return
+            }
+
+            //*если же валидный, то делаем проверку чтоб он не был больше страниц чем на сервере
+            if (isValidOffset) {
+                if (+query.offset > Math.ceil(data.count / 20)) {
+                    router.push(
+                        {
+                            query: {
+                                ...query,
+                                offset: 1,
+                            },
+                        },
+                        undefined,
+                        { shallow: true }
+                    )
+                    setCurrentPage(0)
+                    setGoods(data)
+                    return
+                }
+                
+            }
+
+            //*только после всех проверок делаем запрос на сервер
+            const offset = +query.offset - 1
+            const result = await getGoodsFx(`/goods/?limit=20&offset=${offset}`)
+
+            setCurrentPage(offset)
+            setGoods(result)
+        
         } catch (e) {
             toast.error((e as Error).message)
         } finally {
             setSpinner(false)
+        }
+    }
+
+    const resetPagination = (data : IGoods) => {
+        setCurrentPage(0)
+        setGoods(data)
+    }
+
+    //*Функция при переходе по пагинации загружались другие данные
+    const handlePaggeChange = async({selected} : {selected: number}) => {
+        try {
+            const data = await getGoodsFx('/goods/?limit=20&offset=0')
+
+            if(selected > pagesCount){
+                resetPagination(data)
+                return
+            }
+
+            if(isValidOffset && +query.offset > Math.ceil(data.count / 20)){
+                resetPagination(data)
+                return
+            }
+
+            const result = await getGoodsFx(`/goods/?limit=20&offset=${selected}`)
+
+            router.push(
+                {
+                    query: {
+                        ...router.query,
+                        offset: selected + 1,
+                    },
+                },
+                undefined,
+                { shallow: true }
+            )
+
+            setCurrentPage(selected)
+            setGoods(result)
+        } catch (e) {
+            
         }
     }
 
@@ -108,6 +202,23 @@ const CatalogPage = () => {
                             </ul>
                         )}
                     </div>
+
+                    {/* Блок пагинации страниц */}
+                    <ReactPaginate
+                        containerClassName={styles.catalog__bottom__list}
+                        pageClassName={styles.catalog__bottom__list__item}
+                        pageLinkClassName={
+                            styles.catalog__bottom__list__item__link
+                        }
+                        breakClassName={styles.catalog__bottom__list__break}
+                        previousClassName={styles.catalog__bottom__list__prev}
+                        nextClassName={styles.catalog__bottom__list__next}
+                        breakLinkClassName={`${styles.catalog__bottom__list__break__link} ${darkModeClass}`}
+                        breakLabel="..."
+                        pageCount={pagesCount}
+                        forcePage={currentPage}
+                        onPageChange={handlePaggeChange}
+                    />
                 </div>
             </div>
         </section>
