@@ -14,9 +14,9 @@ const FilterCheckboxItem = ( {title, checked, id, event } :IFilterCheckboxItem )
 
 
     return(
-        <li className={`${styles.filtres__category__list__item} ${darkModeClass}`}>
+        <li className={`${styles.filters__category__list__item} ${darkModeClass}`}>
             <label>
-                <input type="checked" checked={checked} onChange={handleFilterChange}/>
+                <input type="checkbox" checked={checked} onChange={handleFilterChange}/>
                 <span>{title}</span>
             </label>
         </li>

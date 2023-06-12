@@ -9,6 +9,10 @@ import {
     $goodsCategory,
     $goodsSubcategory,
     setGoods,
+    setGoodsCategory,
+    setGoodsSubcategory,
+    updateGoodsCategory,
+    updateGoodsSubcategory,
 } from '@/context/goods'
 import { toast } from 'react-toastify'
 import { useEffect, useState } from 'react'
@@ -20,6 +24,7 @@ import { useRouter } from 'next/router'
 import { IGoods } from '@/types/goods'
 import CatalogFilter from '@/components/modules/Catalog/CatalogFiltres'
 import styles from '@/styles/catalog/index.module.scss'
+import PriceRange from '@/components/modules/Catalog/PriceRange'
 
 const CatalogPage = ({ query }: { query: IQueryParams }) => {
     //стили для тёмный темы
@@ -44,8 +49,8 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
     //*Получаем доступ к состояниям категорий и подкатегорий (checkbox) для фильтрации
     const category = useStore($goodsCategory)
     const subcategory = useStore($goodsSubcategory)
-    //*всё для кнопки "Сбросить фильтр"
 
+    //*всё для кнопки "Сбросить фильтр"
     const isAnyCategoryChecked = category.some((item) => item.checked)
     const isAnySubcategoryChecked = subcategory.some((item) => item.checked)
     const resetFilterBtnDisabled = !(
@@ -149,6 +154,26 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
         } catch (e) {}
     }
 
+    //*Функция "Сбросить фильтр"
+    const resetFilter = async () => {
+        try {
+            const data = await getGoodsFx('/goods/?limit=20&offset=0')
+
+            setGoodsCategory(
+                category.map((item) => ({...item, checked: false}))
+            )
+            setGoodsSubcategory(
+                subcategory.map((item) => ({...item, checked: false}))
+            )
+
+            setGoods(data)
+            setPriceRange([1000, 9000])
+            setIsPriceRangeChanged(false)
+        } catch (e) {
+            toast.error((e as Error).message)
+        }
+    }
+
     return (
         <section className={styles.catalog}>
             <div className={`container ${styles.catalog__container}`}>
@@ -159,11 +184,21 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                 {/* Верхний блок каталогов */}
                 <div className={`${styles.catalog__top} ${darkModeClass}`}>
                     <AnimatePresence>
-                        {false && <CategoryBlock title="Категория товаров:" />}
+                        {isAnyCategoryChecked && (
+                            <CategoryBlock
+                                title="Категория товаров:"
+                                event={updateGoodsCategory}
+                                categoryList={category}
+                            />
+                        )}
                     </AnimatePresence>
                     <AnimatePresence>
-                        {false && (
-                            <CategoryBlock title="Подкатегория товаров:" />
+                        {isAnySubcategoryChecked && (
+                            <CategoryBlock
+                                title="Подкатегория товаров:"
+                                event={updateGoodsSubcategory}
+                                categoryList={subcategory}
+                            />
                         )}
                     </AnimatePresence>
 
@@ -171,6 +206,7 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                         <button
                             className={`${styles.catalog__top__reset} ${darkModeClass}`}
                             disabled={resetFilterBtnDisabled}
+                            onClick={resetFilter}
                         >
                             Сбросить фильтр
                         </button>
@@ -186,6 +222,8 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                             priceRange={priceRange}
                             setPriceRange={setPriceRange}
                             setIsPriceRangeChanged={setIsPriceRangeChanged}
+                            resetFilterBtnDisabled={resetFilterBtnDisabled}
+                            resetFilter={resetFilter}
                         />
 
                         {/* Блок списка товаров */}

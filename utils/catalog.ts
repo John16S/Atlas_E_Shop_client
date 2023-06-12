@@ -20,4 +20,6 @@ export const subcategory = [
     'Outerwear', //Верхняя одежда'
     'Bags',
     'Underwear',
+    'sadsdqwqd',
+    'Underwdwqdqwdqwdear',
 ].map(createCategoryCheckboxObj)

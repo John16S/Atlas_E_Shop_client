@@ -2,8 +2,13 @@ import { Event } from 'effector-next'
 
 export interface ICategoryBlockProps {
   title: string
-  // event: Event<IFilterCheckboxItem>
-  // categoryList: IFilterCheckboxItem[]
+  event: Event<IFilterCheckboxItem>
+  categoryList: IFilterCheckboxItem[]
+}
+
+export interface ICategoryBlockItemProps {
+  item: IFilterCheckboxItem
+  event: Event<IFilterCheckboxItem>
 }
 
 export interface IQueryParams {
@@ -23,6 +28,9 @@ export interface IFilterCheckboxItem {
   event: Event<IFilterCheckboxItem>
 }
 
+
+
+
 export interface IFilterCategoryAccordionProps {
   categoryList: IFilterCheckboxItem[]
   title: string | false
@@ -34,27 +42,33 @@ export interface ICatalogFilterProps {
   priceRange: number[]
   setPriceRange: (arg0: number[]) => void
   setIsPriceRangeChanged: (arg0: boolean) => void
+  resetFilterBtnDisabled: boolean
+  resetFilter: VoidFunction
 }
-export type IPriceRangeProps = ICatalogFilterProps
-
-export type ICatalogFilterDesktop = ICatalogFilterProps
-
-
-
-
-
-
-
-
-
-
-
-
-
-export interface ICategoryBlockItemProps {
-  item: IFilterCheckboxItem
-  event: Event<IFilterCheckboxItem>
+export interface IPriceRangeProps {
+  priceRange: number[]
+  setPriceRange: (arg0: number[]) => void
+  setIsPriceRangeChanged: (arg0: boolean) => void
 }
+
+export interface ICatalogFilterDesktop extends ICatalogFilterProps {
+  spinner: boolean
+  resetFilter: VoidFunction
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

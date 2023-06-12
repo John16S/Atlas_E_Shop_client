@@ -1,6 +1,6 @@
 import { IFilterCheckboxItem } from '@/types/catalog'
 import { IGoods } from '@/types/goods'
-import { category, subcategory } from '@/utils/Catalog'
+import { category, subcategory } from '@/utils/catalog'
 import { createDomain } from 'effector-next'
 
 const goods = createDomain()

@@ -24,23 +24,24 @@ const FilterCategoryAccordion = ({
     return (
         <Accordion
             title={title}
-            titleClass={`${styles.filtres__category__btn} ${darkModeClass}`}
+            titleClass={`${styles.filters__category__btn} ${darkModeClass}`}
             arrowOpenClass={styles.open}
             isMobileForFilters={isMobile}
             hideArrowClass={isMobile ? styles.hide_arrow : ''}
         >
-            <div className={styles.filtres__category__inner}>
+            <div className={styles.filters__category__inner}>
                 <button
-                    className={styles.filtres__category__select_all}
+                    className={styles.filters__category__select_all}
                     onClick={chooseAllCategories}
                 >
                     Выбрать все
                 </button>
 
-                <ul className={styles.filtres__category__btn}>
+                <ul className={styles.filters__category__list}>
                     {categoryList.map((item) => (
                         <FilterCheckboxItem
                             title={item.title}
+                            id={item.id}
                             key={item.id}
                             checked={item.checked}
                             event={updateCategory}
