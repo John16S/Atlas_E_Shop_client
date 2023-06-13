@@ -9,16 +9,22 @@ import CartHoverSvg from '@/components/elements/CartHoverSvg/CartHoverSvg'
 import CartHoverCheckedSvg from '@/components/elements/CartHoverCheckedSvg/CartHoverCheckedSvg'
 import styles from '@/styles/catalog/index.module.scss'
 import spinnerStyles from '@/styles/spinner/spinner.module.scss'
+import { toggleCartItem } from '@/utils/shopping-cart'
+import { $user } from '@/context/user'
 
 const CatalogItem = ({ item }: { item: IGood }) => {
     //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
     const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
+    
+    const user = useStore($user) //получаем доступ к состоянию mode
 
     const shoppingCart = useStore($shoppingCart)
     const isInCart = shoppingCart.some((cartItem) => cartItem.goodId === item.id) //*Проверяем что товар находится в карзине?
 
     const [spinner, setSpinner] = useState(false)
+
+    const toggleToCart = () => toggleCartItem(user.userName, item.id, isInCart, setSpinner)
 
     return (
         <li className={`${styles.catalog__list__item} ${darkModeClass}`}>
@@ -41,6 +47,7 @@ const CatalogItem = ({ item }: { item: IGood }) => {
                 <button 
                     className={`${styles.catalog__list__item__cart} ${isInCart ? styles.added : ''}`}
                     disabled={spinner}
+                    onClick={toggleToCart}
                 >
                     {spinner ? (
                         <div className={spinnerStyles.spinner} style={{top: 6, left: 6}}/>

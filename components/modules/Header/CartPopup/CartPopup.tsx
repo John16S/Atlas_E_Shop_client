@@ -1,13 +1,17 @@
 import { useStore } from 'effector-react'
-import { forwardRef } from 'react'
+import { forwardRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { $mode } from '@/context/mode'
 import styles from '@/styles/cartPopup/cartPopup.module.scss'
 import { IWrappedComponentProps } from '@/types/common'
 import { withClickOutside } from '@/utils/withClickOutside'
 import ShoppingCartSvg from '@/components/elements/ShoppingCartSvg/ShoppingCartSvg'
-import { $shoppingCart } from '@/context/shopping-cart'
+import { $shoppingCart, setShoppingCart } from '@/context/shopping-cart'
 import Link from 'next/link'
+import CartPopupItem from './CartPopupItem'
+import { getCartItemsFx } from '@/app/api/shopping-cart'
+import { toast } from 'react-toastify'
+import { $user } from '@/context/user'
 
 const CartPopup = forwardRef<HTMLDivElement, IWrappedComponentProps>(
     ({ open, setOpen }, ref) => {
@@ -16,8 +20,25 @@ const CartPopup = forwardRef<HTMLDivElement, IWrappedComponentProps>(
       const mode = useStore($mode) //получаем доступ к состоянию mode 
       const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
       
+      const user = useStore($user) //получаем доступ к состоянию user 
+
       const toggleCartDropDown = () => setOpen(!open)
       
+      useEffect(() => {
+        loadCartItems()
+      }, [])
+
+      const loadCartItems = async () => {
+        try {
+          const cartItems = await getCartItemsFx(`/shopping-cart/${user.userId}`)
+  
+          setShoppingCart(cartItems)
+  
+        } catch (e) {
+          toast.error((e as Error).message)
+        }
+      }
+
       return (
         <div className={styles.cart} ref={ref}>
           <button className={`${styles.cart__btn} ${darkModeClass}`} onClick={toggleCartDropDown}>
@@ -39,12 +60,14 @@ const CartPopup = forwardRef<HTMLDivElement, IWrappedComponentProps>(
                 className={`${styles.cart__popup} ${darkModeClass}`}
                 style={{transformOrigin: 'right top'}}
             >
+              
               <h3 className={styles.cart__popup__title}>Корзина</h3>
               <ul className={styles.cart__popup__list}>
                 {/* Проверяем если shoppingCart что то есть, то проходим по массиву и отрисовываем элементы li 
                                                              а иначе выводим корзина пуста */}
+                
                 {shoppingCart.length ? (
-                  shoppingCart.map( (item) => (<li key={item.id}/>) )
+                  shoppingCart.map( (item) => <CartPopupItem key={item.id} item={item}/> )
                   ) : (
                   <li className={styles.cart__popup__empty}>
                     <span className={`${styles.cart__popup__empty__text} ${darkModeClass}`}>
@@ -53,6 +76,8 @@ const CartPopup = forwardRef<HTMLDivElement, IWrappedComponentProps>(
                   </li>
                 )}
               </ul>
+
+
               {/* Footer где totalPrice... */}
               <div className={styles.cart__popup__footer}>
                 <div className={styles.cart__popup__footer__total}>
