@@ -41,14 +41,19 @@ export const toggleCartItem = async (
     }
 }
 
-export const removeItemFromCart = async (partId: number) => {
+export const removeItemFromCart = async (goodId: number) => {
     try {
-        await removeFromCartFx(`/shopping-cart/one/${partId}`)
-        removeShoppingCartItem(partId)
-    } catch (error) {
-        toast.error((error as Error).message)
+        await removeFromCartFx(`/shopping-cart/removeOne/${goodId}`)
+        removeShoppingCartItem(goodId)
+    } catch (e) {
+        toast.error((e as Error).message)
     }
 }
+
+
+
+
+
 
 export const updateTotalPrice = async (total_price: number, partId: number) => {
     const data = await updateCartItemFx({

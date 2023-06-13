@@ -10,6 +10,7 @@ import styles from '@/styles/cartPopup/cartPopup.module.scss'
 import spinnerStyles from '@/styles/spinner/spinner.module.scss'
 import { IShoppingCartItem } from '@/types/shopping-cart copy'
 import { useState } from 'react'
+import { removeItemFromCart } from '@/utils/shopping-cart'
 
 const CartPopupItem = ({ item }: { item: IShoppingCartItem }) => {
     const mode = useStore($mode)
@@ -21,13 +22,17 @@ const CartPopupItem = ({ item }: { item: IShoppingCartItem }) => {
 
     const [spinner, setSpinner] = useState(false)
 
+    const deleteCartItem = () => removeItemFromCart(item.goodId) 
+
     return (
         <li className={styles.cart__popup__list__item}>
             <div className={styles.cart__popup__list__item__top}>
+                {/* картина товара */}
                 <div className={styles.cart__popup__list__item__img}>
                     <img src={item.image} alt={item.name} />
                 </div>
 
+                {/* Title товара */}
                 <Link href={`/catalog/${item.goodId}`} passHref legacyBehavior>
                     <a
                         className={`${styles.cart__popup__list__item__text} ${darkModeClass}`}
@@ -40,9 +45,8 @@ const CartPopupItem = ({ item }: { item: IShoppingCartItem }) => {
                     </a>
                 </Link>
                 
-                {/* onClick={deleteCartItem} */}
-                {/*  */}
-                <button>
+                {/* крестик */}
+                <button onClick={deleteCartItem}>
                     <span>
                         {spinner ? (
                             <span
