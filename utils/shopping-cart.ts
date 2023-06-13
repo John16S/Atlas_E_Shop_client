@@ -6,7 +6,7 @@ import {
 } from '@/app/api/shopping-cart'
 import {
     removeShoppingCartItem,
-    // updateCartItemTotalPrice,
+    updateCartItemTotalPrice,
     updateShoppingCart,
 } from '@/context/shopping-cart'
 
@@ -51,15 +51,12 @@ export const removeItemFromCart = async (goodId: number) => {
 }
 
 
-
-
-
-
-export const updateTotalPrice = async (total_price: number, partId: number) => {
+export const updateTotalPrice = async (totalPrice: number, goodId: number) => {
     const data = await updateCartItemFx({
-        url: `/shopping-cart/total-price/${partId}`,
-        payload: { total_price },
+        url: `/shopping-cart/totalPrice/${goodId}`,
+        payload: { totalPrice }
     })
 
-    updateCartItemTotalPrice({ partId, total_price: data.total_price })
+    updateCartItemTotalPrice({ goodId, totalPrice: data.totalPrice })
 }
+

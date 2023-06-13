@@ -5,12 +5,11 @@ import Link from 'next/link'
 import DeleteSvg from '@/components/elements/DeleteSvg/DeleteSvg'
 import { formatPrice } from '@/utils/common'
 import CartItemCounter from '@/components/elements/CartItemCounter/CartItemCounter'
-import { usePrice } from '@/hooks/usePrice'
 import styles from '@/styles/cartPopup/cartPopup.module.scss'
 import spinnerStyles from '@/styles/spinner/spinner.module.scss'
-import { IShoppingCartItem } from '@/types/shopping-cart copy'
-import { useState } from 'react'
-import { removeItemFromCart } from '@/utils/shopping-cart'
+import { IShoppingCartItem } from '@/types/shopping-cart'
+import { useEffect, useState } from 'react'
+import { removeItemFromCart, updateTotalPrice } from '@/utils/shopping-cart'
 
 const CartPopupItem = ({ item }: { item: IShoppingCartItem }) => {
     const mode = useStore($mode)
@@ -21,6 +20,18 @@ const CartPopupItem = ({ item }: { item: IShoppingCartItem }) => {
     //     usePrice(item.count, item.goodId, item.price)
 
     const [spinner, setSpinner] = useState(false)
+    const [price, setPrice] = useState(item.price)
+    
+    useEffect(() => {
+        setPrice(price * item.count)
+    }, [])
+    //*useEffect - ктр всегда следить за изменением цены
+    useEffect(() => {
+        updateTotalPrice(price, item.goodId)
+    }, [price])
+
+    const increasePrice = () => setPrice(price + item.price) 
+    const decreasePrice = () => setPrice(price - item.price) 
 
     const deleteCartItem = () => removeItemFromCart(item.goodId) 
 
@@ -72,12 +83,18 @@ const CartPopupItem = ({ item }: { item: IShoppingCartItem }) => {
                         Нет на складе
                     </span>
                 ) : (
-                    <div/>
+                    <CartItemCounter 
+                        totalCount={item.quantity}
+                        goodId={item.goodId}
+                        initialCount={item.count}
+                        increasePrice={increasePrice}
+                        decreasePrice={decreasePrice}
+                    />
                 )}
                 <span
                     className={`${styles.cart__popup__list__item__price} ${darkModeClass}`}
                 >
-                    {formatPrice(item.price)} P
+                    {formatPrice(price)} P
                 </span>
             </div>
         </li>

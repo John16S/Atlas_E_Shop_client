@@ -100,3 +100,4 @@ export async function updateParamsAndFilters<IUpdateParams>(
     const data = await getGoodsFx(`/goods/?limit=20&offset=${path}`)
     setFilteredGood(data)
 }
+
