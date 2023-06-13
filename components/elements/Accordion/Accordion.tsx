@@ -9,7 +9,7 @@ const Accordion = ({
     titleClass,
     arrowOpenClass,
     isMobileForFilters,
-    hideArrowClass
+    hideArrowClass,
 }: IAccordion) => {
     const [expanded, setExpanded] = useState(false)
 
@@ -19,13 +19,22 @@ const Accordion = ({
 
     return (
         <>
-            {title ? (isMobileForFilters ? (
-                    <button  className={`${titleClass} ${hideArrowClass}`}>{title}</button>
+            {title ? (
+                isMobileForFilters ? (
+                    <button className={`${titleClass} ${hideArrowClass}`}>
+                        {title}
+                    </button>
                 ) : (
                     <motion.button
                         initial={false}
                         onClick={toggleAccordion}
-                        className={`${titleClass} ${expanded ? isMobileForFilters ? '' : arrowOpenClass : ''} `}
+                        className={`${titleClass} ${
+                            expanded
+                                ? isMobileForFilters
+                                    ? ''
+                                    : arrowOpenClass
+                                : ''
+                        } `}
                     >
                         {title}
                     </motion.button>

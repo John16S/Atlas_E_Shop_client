@@ -7,13 +7,17 @@ import { useStore } from 'effector-react'
 import {
     $goodsCategory,
     $goodsSubcategory,
-    setFilteredGood,
     setGoodsCategoriesFromQuery,
     setGoodsSubcategoriesFromQuery,
 } from '@/context/goods'
 import { useRouter } from 'next/router'
-import { getGoodsFx } from '@/app/api/goods'
 import { getQueryParamOnFirstRender } from '@/utils/common'
+import CatalogFiltersMobile from './CatalogFiltresMobile'
+import {
+    checkQueryParams,
+    updateParamsAndFilters,
+    updateParamsAndFiltersFromQuery,
+} from '@/utils/catalog'
 
 const CatalogFilter = ({
     priceRange,
@@ -24,6 +28,8 @@ const CatalogFilter = ({
     isPriceRangeChanged,
     currentPage,
     setIsFilterInQuery,
+    closePopup,
+    filtersMobileOpen,
 }: ICatalogFilterProps) => {
     const isMobile = useMediaQuery(820)
     const [spinner, setSpinner] = useState(false)
@@ -47,33 +53,15 @@ const CatalogFilter = ({
     const applyFilterFromQuery = async () => {
         try {
             //*получаем фильтры из query (адресной строки)
-            const priceFromQueryValue = getQueryParamOnFirstRender(
-                'priceFrom',
-                router
-            )
-            const priceToQueryValue = getQueryParamOnFirstRender(
-                'priceTo',
-                router
-            )
-            const categoryQueryValue = JSON.parse(
-                decodeURIComponent(
-                    getQueryParamOnFirstRender('categ', router) as string
-                )
-            )
-            const subcategoryQueryValue = JSON.parse(
-                decodeURIComponent(
-                    getQueryParamOnFirstRender('subcateg', router) as string
-                )
-            )
-
-            //*также проверяем на их валидность (массивы ли они)
-            const isValidCategory =
-                Array.isArray(categoryQueryValue) &&
-                !!categoryQueryValue?.length
-            const isValidSubcategory =
-                Array.isArray(subcategoryQueryValue) &&
-                !!subcategoryQueryValue?.length
-
+            const {
+                isValidCategory,
+                isValidSubcategory,
+                isValidPriceQuery,
+                priceFromQueryValue,
+                priceToQueryValue,
+                categoryQueryValue,
+                subcategoryQueryValue,
+            } = checkQueryParams(router)
             //*конечный результат
             const categoryQuery = `&categ=${getQueryParamOnFirstRender(
                 'categ',
@@ -85,23 +73,24 @@ const CatalogFilter = ({
             )}`
             const priceQuery = `&priceFrom=${priceFromQueryValue}&priceTo${priceToQueryValue}`
 
-            if (
-                isValidCategory &&
-                isValidSubcategory &&
-                priceFromQueryValue &&
-                priceToQueryValue
-            ) {
+            if (isValidCategory && isValidSubcategory && isValidPriceQuery) {
                 updateParamsAndFiltersFromQuery(() => {
-                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                    updatePriceFromQuery(
+                        +priceFromQueryValue,
+                        +priceToQueryValue
+                    )
                     setGoodsCategoriesFromQuery(categoryQueryValue)
                     setGoodsSubcategoriesFromQuery(subcategoryQueryValue)
                 }, `${currentPage}${priceQuery}${categoryQuery}${subcategoryQuery}`)
                 return
             }
 
-            if (priceFromQueryValue && priceToQueryValue) {
+            if (isValidPriceQuery) {
                 updateParamsAndFiltersFromQuery(() => {
-                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                    updatePriceFromQuery(
+                        +priceFromQueryValue,
+                        +priceToQueryValue
+                    )
                 }, `${currentPage}${priceQuery}`)
             }
 
@@ -128,62 +117,37 @@ const CatalogFilter = ({
                 }, `${currentPage}${subcategoryQuery}`)
             }
 
-            if (isValidCategory && priceFromQueryValue && priceToQueryValue) {
+            if (isValidCategory && isValidPriceQuery) {
                 updateParamsAndFiltersFromQuery(() => {
-                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                    updatePriceFromQuery(
+                        +priceFromQueryValue,
+                        +priceToQueryValue
+                    )
                     setGoodsCategoriesFromQuery(categoryQueryValue)
                 }, `${currentPage}${priceQuery}${categoryQuery}`)
                 return
             }
 
-            if (
-                isValidSubcategory &&
-                priceFromQueryValue &&
-                priceToQueryValue
-            ) {
+            if (isValidSubcategory && isValidPriceQuery) {
                 updateParamsAndFiltersFromQuery(() => {
-                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                    updatePriceFromQuery(
+                        +priceFromQueryValue,
+                        +priceToQueryValue
+                    )
                     setGoodsSubcategoriesFromQuery(subcategoryQueryValue)
                 }, `${currentPage}${priceQuery}${subcategoryQuery}`)
                 return
             }
-        } catch (e) {
-            toast.error((e as Error).message)
+        } catch (error) {
+            const err = error as Error
+
+            if (err.message === 'URI malformed') {
+                toast.warning('Неправильный url для фильтров')
+                return
+            }
+
+            toast.error(err.message)
         }
-    }
-
-    const updateParamsAndFiltersFromQuery = async (
-        callback: VoidFunction,
-        path: string
-    ) => {
-        callback()
-        const data = await getGoodsFx(`/goods/?limit=20&offset=${path}`)
-        setFilteredGood(data)
-    }
-
-    async function updateParamsAndFilters<IUpdateParams>(
-        updatedParams: IUpdateParams,
-        path: string
-    ) {
-        //*для очищение из запроса в поискавой строке от выбранных фильтров
-        const params = router.query
-        delete params.categ
-        delete params.subcateg
-        delete params.priceFrom
-        delete params.priceTo
-
-        router.push(
-            {
-                query: {
-                    ...params,
-                    ...updatedParams,
-                },
-            },
-            undefined,
-            { shallow: true }
-        )
-        const data = await getGoodsFx(`/goods/?limit=20&offset=${path}`)
-        setFilteredGood(data)
     }
 
     const applyFilters = async () => {
@@ -227,7 +191,8 @@ const CatalogFilter = ({
                         priceTo,
                         offset: initialPage + 1,
                     },
-                    `${initialPage}${priceQuery}${categoryQuery}${subcategoryQuery}`
+                    `${initialPage}${priceQuery}${categoryQuery}${subcategoryQuery}`,
+                    router
                 )
                 return
             }
@@ -239,7 +204,8 @@ const CatalogFilter = ({
                         priceTo,
                         offset: initialPage + 1,
                     },
-                    `${initialPage}${priceQuery}`
+                    `${initialPage}${priceQuery}`,
+                    router
                 )
             }
 
@@ -249,7 +215,8 @@ const CatalogFilter = ({
                         categ: encodedCategoryQuery,
                         offset: initialPage + 1,
                     },
-                    `${initialPage}${categoryQuery}`
+                    `${initialPage}${categoryQuery}`,
+                    router
                 )
             }
 
@@ -259,7 +226,8 @@ const CatalogFilter = ({
                         subcateg: encodedSubcategoryQuery,
                         offset: initialPage + 1,
                     },
-                    `${initialPage}${subcategoryQuery}`
+                    `${initialPage}${subcategoryQuery}`,
+                    router
                 )
             }
 
@@ -270,7 +238,8 @@ const CatalogFilter = ({
                         subcateg: encodedSubcategoryQuery,
                         offset: initialPage + 1,
                     },
-                    `${initialPage}${categoryQuery}${subcategoryQuery}`
+                    `${initialPage}${categoryQuery}${subcategoryQuery}`,
+                    router
                 )
                 return
             }
@@ -283,7 +252,8 @@ const CatalogFilter = ({
                         priceTo,
                         offset: initialPage + 1,
                     },
-                    `${initialPage}${priceQuery}${categoryQuery}`
+                    `${initialPage}${priceQuery}${categoryQuery}`,
+                    router
                 )
             }
 
@@ -295,7 +265,8 @@ const CatalogFilter = ({
                         priceTo,
                         offset: initialPage + 1,
                     },
-                    `${initialPage}${priceQuery}${subcategoryQuery}`
+                    `${initialPage}${priceQuery}${subcategoryQuery}`,
+                    router
                 )
             }
         } catch (e) {
@@ -309,7 +280,17 @@ const CatalogFilter = ({
     return (
         <>
             {isMobile ? (
-                <div />
+                <CatalogFiltersMobile
+                    priceRange={priceRange}
+                    setPriceRange={setPriceRange}
+                    setIsPriceRangeChanged={setIsPriceRangeChanged}
+                    spinner={spinner}
+                    applyFilters={applyFilters}
+                    closePopup={closePopup}
+                    resetFilterBtnDisabled={resetFilterBtnDisabled}
+                    resetFilter={resetFilter}
+                    filtersMobileOpen={filtersMobileOpen}
+                />
             ) : (
                 <CatalogFilterDesktop
                     priceRange={priceRange}

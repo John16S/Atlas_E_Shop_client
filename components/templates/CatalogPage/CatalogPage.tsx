@@ -25,6 +25,9 @@ import { useRouter } from 'next/router'
 import { IGoods } from '@/types/goods'
 import CatalogFilter from '@/components/modules/Catalog/CatalogFiltres'
 import styles from '@/styles/catalog/index.module.scss'
+import { usePopup } from '@/hooks/usePopup'
+import { checkQueryParams } from '@/utils/catalog'
+import FilterSvg from '@/components/elements/FilterSvg/FilterSvg'
 
 const CatalogPage = ({ query }: { query: IQueryParams }) => {
     //стили для тёмный темы
@@ -58,6 +61,9 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
         isAnyCategoryChecked ||
         isAnySubcategoryChecked
     )
+
+    //*Функция для закрытия фильтра в мобильном разрешении
+    const { toggleOpen, open, closePopup } = usePopup()
 
     const filteredGood = useStore($filteredGood) //получаем доступ к состоянию отфильтрованного товара
     const [isFilterInQuery, setIsFilterInQuery] = useState(false)
@@ -120,7 +126,6 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
         } finally {
             setTimeout(() => setSpinner(false), 1000)
         }
-    
     }
 
     const resetPagination = (data: IGoods) => {
@@ -144,17 +149,22 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                 return
             }
 
+            const { isValidCategory, isValidSubcategory, isValidPriceQuery } =
+                checkQueryParams(router)
+
             const result = await getGoodsFx(
-                `/goods?limit=20&offset=${selected
-                }${isFilterInQuery && router.query.category 
-                    ? `&category=${router.query.category}` 
-                    : ''
-                }${isFilterInQuery && router.query.subcategory
-                    ? `&subcategory=${router.query.subcategory}` 
-                    : ''
-                }${isFilterInQuery && router.query.priceFrom && router.query.priceTo 
-                    ? `&priceFrom=${router.query.priceFrom}&priceTo=${router.query.priceTo}` 
-                    : ''
+                `/goods?limit=20&offset=${selected}${
+                    isFilterInQuery && isValidCategory
+                        ? `&categ=${router.query.category}`
+                        : ''
+                }${
+                    isFilterInQuery && isValidSubcategory
+                        ? `&subcateg=${router.query.subcategory}`
+                        : ''
+                }${
+                    isFilterInQuery && isValidPriceQuery
+                        ? `&priceFrom=${router.query.priceFrom}&priceTo=${router.query.priceTo}`
+                        : ''
                 }`
             )
 
@@ -173,7 +183,7 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
             setGoods(result)
         } catch (e) {
             toast.error((e as Error).message)
-        } finally{
+        } finally {
             setTimeout(() => setSpinner(false), 1000)
         }
     }
@@ -188,8 +198,8 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
             delete params.subcateg
             delete params.priceFrom
             delete params.priceTo
-            params.first = 'cheap'  //установим сортировку "Сначала дешевые"
-            router.push( { query: {...params} }, undefined, {shallow: true} )
+            params.first = 'cheap' //установим сортировку "Сначала дешевые"
+            router.push({ query: { ...params } }, undefined, { shallow: true })
 
             setGoodsCategory(
                 category.map((item) => ({ ...item, checked: false }))
@@ -242,7 +252,27 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                         >
                             Сбросить фильтр
                         </button>
-                        <FilterSelect setSpinner={setSpinner}/>
+
+                        {/* Кнопка фильтр ктр появиься при мобильном разрешении */}
+                        <button
+                            className={styles.catalog__top__mobile_btn}
+                            onClick={toggleOpen}
+                        >
+                            <span
+                                className={styles.catalog__top__mobile_btn__svg}
+                            >
+                                <FilterSvg />
+                            </span>
+                            <span
+                                className={
+                                    styles.catalog__top__mobile_btn__text
+                                }
+                            >
+                                Фильтр
+                            </span>
+                        </button>
+
+                        <FilterSelect setSpinner={setSpinner} />
                     </div>
                 </div>
 
@@ -259,6 +289,8 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                             isPriceRangeChanged={isPriceRangeChanged}
                             currentPage={currentPage}
                             setIsFilterInQuery={setIsFilterInQuery}
+                            closePopup={closePopup}
+                            filtersMobileOpen={open}
                         />
 
                         {/* Блок списка товаров */}

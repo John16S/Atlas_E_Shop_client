@@ -22,7 +22,7 @@ const CatalogFilterDesktop = ({
     resetFilterBtnDisabled,
     spinner,
     resetFilter,
-    applyFilters
+    applyFilters,
 }: ICatalogFilterDesktop) => {
     //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
@@ -51,7 +51,6 @@ const CatalogFilterDesktop = ({
                     setCategory={setGoodsCategory}
                 />
             </div>
-
             {/* PRICE */}
             <div className={styles.filters__price}>
                 <Accordion
@@ -86,15 +85,29 @@ const CatalogFilterDesktop = ({
                     disabled={spinner || resetFilterBtnDisabled}
                     onClick={applyFilters}
                 >
-                    {spinner ? <span className={spinnerStyles.spinner} style={{top: 6, left: '47%'}}/> : 'Показать'}
+                    {spinner ? (
+                        <span
+                            className={spinnerStyles.spinner}
+                            style={{ top: 6, left: '47%' }}
+                        />
+                    ) : (
+                        'Показать'
+                    )}
                 </button>
-                
+
                 <button
                     className={styles.filters__actions__reset}
                     disabled={resetFilterBtnDisabled}
                     onClick={resetFilter}
                 >
-                    {spinner ? <span className={spinnerStyles.spinner} style={{top: 6, left: '47%' }}/> : 'Сбросить'}
+                    {spinner ? (
+                        <span
+                            className={spinnerStyles.spinner}
+                            style={{ top: 6, left: '47%' }}
+                        />
+                    ) : (
+                        'Сбросить'
+                    )}
                 </button>
             </div>
         </div>

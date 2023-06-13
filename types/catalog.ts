@@ -35,46 +35,19 @@ export interface IFilterCategoryAccordionProps {
     updateCategory: Event<IFilterCheckboxItem>
 }
 
-export interface ICatalogFilterProps {
-    priceRange: number[]
-    setPriceRange: (arg0: number[]) => void
-    setIsPriceRangeChanged: (arg0: boolean) => void
-    resetFilterBtnDisabled: boolean
-    resetFilter: VoidFunction
-    isPriceRangeChanged: boolean
-    currentPage: number
-    setIsFilterInQuery: (arg0: boolean) => void
-}
-export interface IPriceRangeProps {
-    priceRange: number[]
-    setPriceRange: (arg0: number[]) => void
-    setIsPriceRangeChanged: (arg0: boolean) => void
-}
-
-export interface ICatalogFilterDesktop {
-    priceRange: number[]
-    setPriceRange: (arg0: number[]) => void
-    setIsPriceRangeChanged: (arg0: boolean) => void
-    resetFilterBtnDisabled: boolean
-    resetFilter: VoidFunction
-    spinner: boolean
-    applyFilters: VoidFunction
-}
-
 interface ICatalogBaseTypes {
     priceRange: number[]
     setPriceRange: (arg0: number[]) => void
     setIsPriceRangeChanged: (arg0: boolean) => void
 }
-
-interface ICatalogFiltersBaseTypes {
+interface ICatalogFilterBaseTypes {
     resetFilterBtnDisabled: boolean
-    resetFilters: VoidFunction
+    resetFilter: VoidFunction
 }
 
-export interface ICatalogFiltersProps
+export interface ICatalogFilterProps
     extends ICatalogBaseTypes,
-        ICatalogFiltersBaseTypes {
+        ICatalogFilterBaseTypes {
     isPriceRangeChanged: boolean
     currentPage: number
     setIsFilterInQuery: (arg0: boolean) => void
@@ -82,16 +55,18 @@ export interface ICatalogFiltersProps
     filtersMobileOpen: boolean
 }
 
-export interface ICatalogFilterDesktopProps
+export type IPriceRangeProps = ICatalogBaseTypes
+
+export interface ICatalogFilterDesktop
     extends ICatalogBaseTypes,
-        ICatalogFiltersBaseTypes {
+        ICatalogFilterBaseTypes {
     spinner: boolean
     applyFilters: VoidFunction
 }
 
-export interface ICatalogFilterMobileProps
+export interface ICatalogFilterMobile
     extends ICatalogBaseTypes,
-        ICatalogFiltersBaseTypes {
+        ICatalogFilterBaseTypes {
     spinner: boolean
     applyFilters: VoidFunction
     closePopup: VoidFunction
