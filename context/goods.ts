@@ -12,7 +12,6 @@ export const setGoodsCheapFirst = goods.createEvent()
 export const setGoodsExpensiveFirst = goods.createEvent()
 export const setGoodsByPopularity = goods.createEvent()
 
-
 export const $goods = goods
     .createStore<IGoods>({} as IGoods)
     .on(setGoods, (_, goods) => goods)
@@ -37,48 +36,74 @@ export const $goods = goods
         }),
     }))
 
-    
 //*Для фильтрации
 export const setGoodsCategory = goods.createEvent<IFilterCheckboxItem[]>()
 export const setGoodsSubcategory = goods.createEvent<IFilterCheckboxItem[]>()
-    //*для изменение состояние checkbox-a
-    export const updateGoodsCategory = goods.createEvent<IFilterCheckboxItem>()
-    export const updateGoodsSubcategory = goods.createEvent<IFilterCheckboxItem>()
-    
-    //*вспомогательная функция
-    export const updateCategoryHelper = (
-        category: IFilterCheckboxItem[], 
-        id: string, 
-        payload: Partial<IFilterCheckboxItem>
-        ) => category.map((item) => {
-            if(item.id === id) {
-                return {
-                    ...item,
-                    ...payload
-                }
-            }
+//*для изменение состояние checkbox-a
+export const updateGoodsCategory = goods.createEvent<IFilterCheckboxItem>()
+export const updateGoodsSubcategory = goods.createEvent<IFilterCheckboxItem>()
 
-            return item
-        })
+//*вспомогательная функция
+export const updateCategoryHelper = (
+    category: IFilterCheckboxItem[],
+    id: string,
+    payload: Partial<IFilterCheckboxItem>
+) =>
+    category.map((item) => {
+        if (item.id === id) {
+            return {
+                ...item,
+                ...payload,
+            }
+        }
+
+        return item
+    })
+
+//********************************************************************************* */
+export const setGoodsCategoriesFromQuery =
+    goods.createEvent<string[]>()
+export const setGoodsSubcategoriesFromQuery =
+    goods.createEvent<string[]>()
+
+const updateGoodsFromQuery = (
+    category: IFilterCheckboxItem[],
+    categoryFromQuery: string[]
+) =>
+    category.map((item) => {
+        if (categoryFromQuery.find((title) => title === item.title)) {
+            return {
+                ...item,
+                checked: true,
+            }
+        }
+        return item
+    })
+//*********************************************************************************** */
 
 export const $goodsCategory = goods
     .createStore<IFilterCheckboxItem[]>(category as IFilterCheckboxItem[])
     .on(setGoodsCategory, (_, goods) => goods)
     .on(updateGoodsCategory, (state, payload) => [
-        ...updateCategoryHelper(state, payload.id as string, { 
-            checked: payload.checked 
+        ...updateCategoryHelper(state, payload.id as string, {
+            checked: payload.checked,
         }),
+    ])
+    .on(setGoodsCategoriesFromQuery, (state, categoriesFromQuery) => [
+        ...updateGoodsFromQuery(state, categoriesFromQuery),
     ])
 
 export const $goodsSubcategory = goods
     .createStore<IFilterCheckboxItem[]>(subcategory as IFilterCheckboxItem[])
     .on(setGoodsSubcategory, (_, goods) => goods)
     .on(updateGoodsSubcategory, (state, payload) => [
-        ...updateCategoryHelper(state, payload.id as string, { 
-            checked: payload.checked 
+        ...updateCategoryHelper(state, payload.id as string, {
+            checked: payload.checked,
         }),
     ])
-
+    .on(setGoodsSubcategoriesFromQuery, (state, subcategoriesFromQuery) => [
+        ...updateGoodsFromQuery(state, subcategoriesFromQuery),
+    ])
 
 export const setFilteredGood = goods.createEvent<IGoods>()
 export const $filteredGood = goods

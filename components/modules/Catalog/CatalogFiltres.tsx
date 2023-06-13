@@ -1,16 +1,19 @@
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import CatalogFilterDesktop from './CatalogFilterDesktop'
 import { ICatalogFilterProps } from '@/types/catalog'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useStore } from 'effector-react'
 import {
     $goodsCategory,
     $goodsSubcategory,
     setFilteredGood,
+    setGoodsCategoriesFromQuery,
+    setGoodsSubcategoriesFromQuery,
 } from '@/context/goods'
 import { useRouter } from 'next/router'
 import { getGoodsFx } from '@/app/api/goods'
+import { getQueryParamOnFirstRender } from '@/utils/common'
 
 const CatalogFilter = ({
     priceRange,
@@ -29,6 +32,159 @@ const CatalogFilter = ({
     //*Получаем доступ к состояниям категорий и подкатегорий (checkbox) для фильтрации
     const category = useStore($goodsCategory)
     const subcategory = useStore($goodsSubcategory)
+
+    useEffect(() => {
+        applyFilterFromQuery()
+    }, [])
+
+    const updatePriceFromQuery = (priceFrom: number, priceTo: number) => {
+        setIsFilterInQuery(true)
+        setPriceRange([+priceFrom, +priceTo])
+        setIsPriceRangeChanged(true)
+    }
+
+    //*Функция будет вызыватся при первом рендеринге
+    const applyFilterFromQuery = async () => {
+        try {
+            //*получаем фильтры из query (адресной строки)
+            const priceFromQueryValue = getQueryParamOnFirstRender(
+                'priceFrom',
+                router
+            )
+            const priceToQueryValue = getQueryParamOnFirstRender(
+                'priceTo',
+                router
+            )
+            const categoryQueryValue = JSON.parse(
+                decodeURIComponent(
+                    getQueryParamOnFirstRender('categ', router) as string
+                )
+            )
+            const subcategoryQueryValue = JSON.parse(
+                decodeURIComponent(
+                    getQueryParamOnFirstRender('subcateg', router) as string
+                )
+            )
+
+            //*также проверяем на их валидность (массивы ли они)
+            const isValidCategory =
+                Array.isArray(categoryQueryValue) &&
+                !!categoryQueryValue?.length
+            const isValidSubcategory =
+                Array.isArray(subcategoryQueryValue) &&
+                !!subcategoryQueryValue?.length
+
+            //*конечный результат
+            const categoryQuery = `&categ=${getQueryParamOnFirstRender(
+                'categ',
+                router
+            )}`
+            const subcategoryQuery = `&subcateg=${getQueryParamOnFirstRender(
+                'subcateg',
+                router
+            )}`
+            const priceQuery = `&priceFrom=${priceFromQueryValue}&priceTo${priceToQueryValue}`
+
+            if (
+                isValidCategory &&
+                isValidSubcategory &&
+                priceFromQueryValue &&
+                priceToQueryValue
+            ) {
+                updateParamsAndFiltersFromQuery(() => {
+                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                    setGoodsCategoriesFromQuery(categoryQueryValue)
+                    setGoodsSubcategoriesFromQuery(subcategoryQueryValue)
+                }, `${currentPage}${priceQuery}${categoryQuery}${subcategoryQuery}`)
+                return
+            }
+
+            if (priceFromQueryValue && priceToQueryValue) {
+                updateParamsAndFiltersFromQuery(() => {
+                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                }, `${currentPage}${priceQuery}`)
+            }
+
+            if (isValidCategory && isValidSubcategory) {
+                updateParamsAndFiltersFromQuery(() => {
+                    setIsFilterInQuery(true)
+                    setGoodsCategoriesFromQuery(categoryQueryValue)
+                    setGoodsSubcategoriesFromQuery(subcategoryQueryValue)
+                }, `${currentPage}${categoryQuery}${subcategoryQuery}`)
+                return
+            }
+
+            if (isValidCategory) {
+                updateParamsAndFiltersFromQuery(() => {
+                    setIsFilterInQuery(true)
+                    setGoodsCategoriesFromQuery(categoryQueryValue)
+                }, `${currentPage}${categoryQuery}`)
+            }
+
+            if (isValidSubcategory) {
+                updateParamsAndFiltersFromQuery(() => {
+                    setIsFilterInQuery(true)
+                    setGoodsSubcategoriesFromQuery(subcategoryQueryValue)
+                }, `${currentPage}${subcategoryQuery}`)
+            }
+
+            if (isValidCategory && priceFromQueryValue && priceToQueryValue) {
+                updateParamsAndFiltersFromQuery(() => {
+                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                    setGoodsCategoriesFromQuery(categoryQueryValue)
+                }, `${currentPage}${priceQuery}${categoryQuery}`)
+                return
+            }
+
+            if (
+                isValidSubcategory &&
+                priceFromQueryValue &&
+                priceToQueryValue
+            ) {
+                updateParamsAndFiltersFromQuery(() => {
+                    updatePriceFromQuery(+priceFromQueryValue, +priceToQueryValue)
+                    setGoodsSubcategoriesFromQuery(subcategoryQueryValue)
+                }, `${currentPage}${priceQuery}${subcategoryQuery}`)
+                return
+            }
+        } catch (e) {
+            toast.error((e as Error).message)
+        }
+    }
+
+    const updateParamsAndFiltersFromQuery = async (
+        callback: VoidFunction,
+        path: string
+    ) => {
+        callback()
+        const data = await getGoodsFx(`/goods/?limit=20&offset=${path}`)
+        setFilteredGood(data)
+    }
+
+    async function updateParamsAndFilters<IUpdateParams>(
+        updatedParams: IUpdateParams,
+        path: string
+    ) {
+        //*для очищение из запроса в поискавой строке от выбранных фильтров
+        const params = router.query
+        delete params.categ
+        delete params.subcateg
+        delete params.priceFrom
+        delete params.priceTo
+
+        router.push(
+            {
+                query: {
+                    ...params,
+                    ...updatedParams,
+                },
+            },
+            undefined,
+            { shallow: true }
+        )
+        const data = await getGoodsFx(`/goods/?limit=20&offset=${path}`)
+        setFilteredGood(data)
+    }
 
     const applyFilters = async () => {
         setIsFilterInQuery(true)
@@ -63,148 +219,85 @@ const CatalogFilter = ({
                 subcategories.length &&
                 isPriceRangeChanged
             ) {
-                router.push(
+                updateParamsAndFilters(
                     {
-                        query: {
-                            ...router.query,
-                            categ: encodedCategoryQuery,
-                            subcateg: encodedSubcategoryQuery,
-                            priceFrom,
-                            priceTo,
-                            offset: initialPage + 1,
-                        },
+                        categ: encodedCategoryQuery,
+                        subcateg: encodedSubcategoryQuery,
+                        priceFrom,
+                        priceTo,
+                        offset: initialPage + 1,
                     },
-                    undefined,
-                    { shallow: true }
+                    `${initialPage}${priceQuery}${categoryQuery}${subcategoryQuery}`
                 )
-
-                const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${priceQuery}${categoryQuery}${subcategoryQuery}`
-                )
-                setFilteredGood(data)
                 return
             }
 
             if (isPriceRangeChanged) {
-                router.push(
+                updateParamsAndFilters(
                     {
-                        query: {
-                            ...router.query,
-                            priceFrom,
-                            priceTo,
-                            offset: initialPage + 1,
-                        },
+                        priceFrom,
+                        priceTo,
+                        offset: initialPage + 1,
                     },
-                    undefined,
-                    { shallow: true }
+                    `${initialPage}${priceQuery}`
                 )
-                const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${priceQuery}`
-                )
-                setFilteredGood(data)
             }
 
             if (categories.length) {
-                router.push(
+                updateParamsAndFilters(
                     {
-                        query: {
-                            ...router.query,
-                            categ: encodedCategoryQuery,
-                            offset: initialPage + 1,
-                        },
+                        categ: encodedCategoryQuery,
+                        offset: initialPage + 1,
                     },
-                    undefined,
-                    { shallow: true }
+                    `${initialPage}${categoryQuery}`
                 )
-
-                const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${categoryQuery}`
-                )
-                setFilteredGood(data)
             }
 
             if (subcategories.length) {
-                router.push(
+                updateParamsAndFilters(
                     {
-                        query: {
-                            ...router.query,
-                            subcateg: encodedSubcategoryQuery,
-                            offset: initialPage + 1,
-                        },
+                        subcateg: encodedSubcategoryQuery,
+                        offset: initialPage + 1,
                     },
-                    undefined,
-                    { shallow: true }
+                    `${initialPage}${subcategoryQuery}`
                 )
-
-                const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${subcategoryQuery}`
-                )
-                setFilteredGood(data)
             }
 
             if (categories.length && subcategories.length) {
-                router.push(
+                updateParamsAndFilters(
                     {
-                        query: {
-                            ...router.query,
-                            categ: encodedCategoryQuery,
-                            subcateg: encodedSubcategoryQuery,
-                            offset: initialPage + 1,
-                        },
+                        categ: encodedCategoryQuery,
+                        subcateg: encodedSubcategoryQuery,
+                        offset: initialPage + 1,
                     },
-                    undefined,
-                    { shallow: true }
+                    `${initialPage}${categoryQuery}${subcategoryQuery}`
                 )
-
-                const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${categoryQuery}${subcategoryQuery}`
-                )
-                setFilteredGood(data)
                 return
             }
 
             if (categories.length && isPriceRangeChanged) {
-                router.push(
+                updateParamsAndFilters(
                     {
-                        query: {
-                            ...router.query,
-                            categ: encodedCategoryQuery,
-                            priceFrom,
-                            priceTo,
-                            offset: initialPage + 1,
-                        },
+                        categ: encodedCategoryQuery,
+                        priceFrom,
+                        priceTo,
+                        offset: initialPage + 1,
                     },
-                    undefined,
-                    { shallow: true }
+                    `${initialPage}${priceQuery}${categoryQuery}`
                 )
-
-                const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${priceQuery}${categoryQuery}`
-                )
-                setFilteredGood(data)
             }
 
             if (subcategories.length && isPriceRangeChanged) {
-                router.push(
+                updateParamsAndFilters(
                     {
-                        query: {
-                            ...router.query,
-                            subcateg: encodedSubcategoryQuery,
-                            priceFrom,
-                            priceTo,
-                            offset: initialPage + 1,
-                        },
+                        subcateg: encodedSubcategoryQuery,
+                        priceFrom,
+                        priceTo,
+                        offset: initialPage + 1,
                     },
-                    undefined,
-                    { shallow: true }
+                    `${initialPage}${priceQuery}${subcategoryQuery}`
                 )
-
-                const data = await getGoodsFx(
-                    `/goods/?limit=20&offset=${initialPage}${priceQuery}${subcategoryQuery}`
-                )
-                setFilteredGood(data)
             }
-
         } catch (e) {
             toast.error((e as Error).message)
         } finally {

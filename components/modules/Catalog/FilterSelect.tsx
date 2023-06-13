@@ -19,17 +19,22 @@ import {
 } from '@/context/goods'
 import { useRouter } from 'next/router'
 
-const FilterSelect = () => {
+const FilterSelect = ({
+    setSpinner,
+}: {
+    setSpinner: (arg0: boolean) => void
+}) => {
     const router = useRouter()
     //стили для тёмный темы
     const mode = useStore($mode) //получаем доступ к состоянию mode
 
     const goods = useStore($goods) //получаем доступ к состоянию mode
-    
+
     const [categoryOption, setCategoryOption] = useState<SelectOptionType>(null)
 
     useEffect(() => {
-        if(goods.rows){ //Если товары уже загрузились из сервера...
+        if (goods.rows) {
+            //Если товары уже загрузились из сервера...
             //только тогда делать сортировку
             switch (router.query.first) {
                 case 'cheap':
@@ -44,7 +49,7 @@ const FilterSelect = () => {
                     updateCategoryOption('По популярности')
                     setGoodsByPopularity()
                     break
-    
+
                 default:
                     updateCategoryOption('Сначала дешевые')
                     setGoodsCheapFirst()
@@ -72,6 +77,7 @@ const FilterSelect = () => {
 
     //*Функция для установки выбранного значения из выпадающего списка сортировки
     const handleSortOptionChange = (selectedOption: SelectOptionType) => {
+        setSpinner(true)
         setCategoryOption(selectedOption)
 
         switch ((selectedOption as IOption).value) {
@@ -91,6 +97,8 @@ const FilterSelect = () => {
             default:
                 break
         }
+
+    setTimeout(() => setSpinner(false), 1000)
     }
 
     // импортируем Select из библиотеки react-select

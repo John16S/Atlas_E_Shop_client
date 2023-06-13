@@ -1,3 +1,5 @@
+import { NextRouter } from "next/router"
+
 //*Функция для получения ширины браузера
 export const getWindowWidth = () => {
     const { innerWidth: windowWidth } =
@@ -35,3 +37,11 @@ export const idGenerator = () => {
         S4()
     )
 }
+
+
+export const getQueryParamOnFirstRender = (
+    queryName: string,
+    router: NextRouter
+) =>
+    router.query[queryName] ||
+    router.asPath.match(new RegExp(`[&?]${queryName}=(.*)(&|$)`))

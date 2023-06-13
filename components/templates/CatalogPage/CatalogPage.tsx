@@ -118,8 +118,9 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
         } catch (e) {
             toast.error((e as Error).message)
         } finally {
-            setSpinner(false)
+            setTimeout(() => setSpinner(false), 1000)
         }
+    
     }
 
     const resetPagination = (data: IGoods) => {
@@ -130,20 +131,31 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
     //*Функция при переходе по пагинации загружались другие данные
     const handlePaggeChange = async ({ selected }: { selected: number }) => {
         try {
+            setSpinner(true)
             const data = await getGoodsFx('/goods/?limit=20&offset=0')
 
             if (selected > pagesCount) {
-                resetPagination(data)
+                resetPagination(isFilterInQuery ? filteredGood : data)
                 return
             }
 
             if (isValidOffset && +query.offset > Math.ceil(data.count / 20)) {
-                resetPagination(data)
+                resetPagination(isFilterInQuery ? filteredGood : data)
                 return
             }
 
             const result = await getGoodsFx(
-                `/goods/?limit=20&offset=${selected}`
+                `/goods?limit=20&offset=${selected
+                }${isFilterInQuery && router.query.category 
+                    ? `&category=${router.query.category}` 
+                    : ''
+                }${isFilterInQuery && router.query.subcategory
+                    ? `&subcategory=${router.query.subcategory}` 
+                    : ''
+                }${isFilterInQuery && router.query.priceFrom && router.query.priceTo 
+                    ? `&priceFrom=${router.query.priceFrom}&priceTo=${router.query.priceTo}` 
+                    : ''
+                }`
             )
 
             router.push(
@@ -159,13 +171,25 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
 
             setCurrentPage(selected)
             setGoods(result)
-        } catch (e) {}
+        } catch (e) {
+            toast.error((e as Error).message)
+        } finally{
+            setTimeout(() => setSpinner(false), 1000)
+        }
     }
 
     //*Функция "Сбросить фильтр"
     const resetFilter = async () => {
         try {
             const data = await getGoodsFx('/goods/?limit=20&offset=0')
+            //*для очищение из запроса в поискавой строке от выбранных фильтров
+            const params = router.query
+            delete params.categ
+            delete params.subcateg
+            delete params.priceFrom
+            delete params.priceTo
+            params.first = 'cheap'  //установим сортировку "Сначала дешевые"
+            router.push( { query: {...params} }, undefined, {shallow: true} )
 
             setGoodsCategory(
                 category.map((item) => ({ ...item, checked: false }))
@@ -218,7 +242,7 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                         >
                             Сбросить фильтр
                         </button>
-                        <FilterSelect />
+                        <FilterSelect setSpinner={setSpinner}/>
                     </div>
                 </div>
 
@@ -240,7 +264,7 @@ const CatalogPage = ({ query }: { query: IQueryParams }) => {
                         {/* Блок списка товаров */}
                         {spinner ? (
                             <ul className={skeletonStyles.skeleton}>
-                                {Array.from(new Array(8)).map((_, i) => (
+                                {Array.from(new Array(20)).map((_, i) => (
                                     <li
                                         className={`${
                                             skeletonStyles.skeleton__item
