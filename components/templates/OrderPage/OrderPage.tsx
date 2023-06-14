@@ -49,8 +49,6 @@ const OrderPage = () => {
                 //         : ''
                 // }`,
             })
-            console.log(data)
-
             sessionStorage.setItem('paymentId', data.id)
             router.push(data.confirmation.confirmation_url)
         } catch (e) {
