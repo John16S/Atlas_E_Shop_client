@@ -25,6 +25,21 @@ const HomePage = () => {
 
     const closeAlert = () => setShowAlert(false) //функция для закрытия alert
 
+    //!Первый редеринг
+    useEffect(() => {
+        loadGoods()
+    }, [])
+
+    //*Для alert ктр смотрит на shoppingCart.length
+    useEffect(() => {
+        if(shoppingCart.length){
+            setShowAlert(true)
+            return
+        }
+
+        setShowAlert(false)
+    }, [shoppingCart.length])
+
     //*Будем делать запрос на сервер
     const loadGoods = async () => {
         try {
@@ -43,11 +58,6 @@ const HomePage = () => {
             setSpinner(false)
         }
     }
-
-    //!Первый редеринг
-    useEffect(() => {
-        loadGoods()
-    }, [])
 
     return (
         <section className={styles.home}>

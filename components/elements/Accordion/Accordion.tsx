@@ -10,10 +10,14 @@ const Accordion = ({
     arrowOpenClass,
     isMobileForFilters,
     hideArrowClass,
+    callback
 }: IAccordion) => {
     const [expanded, setExpanded] = useState(false)
 
     const toggleAccordion = () => {
+        if(callback){
+            callback(expanded)
+        }
         setExpanded(!expanded)
     }
 

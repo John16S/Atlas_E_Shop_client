@@ -18,7 +18,7 @@ export interface IQueryParams {
     subcategory: string
     priceFrom: string
     priceTo: string
-    //goodId: string
+    goodId: string
 }
 
 export interface IFilterCheckboxItem {

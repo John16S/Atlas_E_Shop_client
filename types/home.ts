@@ -1,7 +1,7 @@
-import { IGoods } from "./goods"
+import { IGood } from "./goods"
 
 export interface IHomeSlider {
-  items: IGoods[]
+  items: IGood[]
   spinner: boolean
   goToGoodPage?: boolean
 }
