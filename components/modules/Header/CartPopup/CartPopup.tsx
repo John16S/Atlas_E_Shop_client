@@ -7,6 +7,7 @@ import { IWrappedComponentProps } from '@/types/common'
 import { withClickOutside } from '@/utils/withClickOutside'
 import ShoppingCartSvg from '@/components/elements/ShoppingCartSvg/ShoppingCartSvg'
 import {
+    $disableCart,
     $shoppingCart,
     $totalPrice,
     setShoppingCart,
@@ -25,7 +26,8 @@ const CartPopup = forwardRef<HTMLDivElement, IWrappedComponentProps>(
         //стили для тёмный темы
         const mode = useStore($mode) //получаем доступ к состоянию mode
         const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
-
+        
+        const disableCart = useStore($disableCart) //получаем доступ к состоянию mode
         const user = useStore($user) //получаем доступ к состоянию user
         const totalPrice = useStore($totalPrice) //получаем доступ к состоянию totalPrice
 
@@ -59,22 +61,34 @@ const CartPopup = forwardRef<HTMLDivElement, IWrappedComponentProps>(
 
         return (
             <div className={styles.cart} ref={ref}>
+                {disableCart ? (
                 <button
                     className={`${styles.cart__btn} ${darkModeClass}`}
-                    onClick={toggleCartDropDown}
+                    style={{cursor: 'auto'}}
                 >
-                    {/* Здесь по мимо 2 спанов будет условный рендеринг */}
-                    {/* С помощью двойное неравенство значение shoppingCart переобразовываем в bool */}
-                    {!!shoppingCart.length && (
-                        <span className={styles.cart__btn__count}>
-                            {shoppingCart.length}
-                        </span>
-                    )}
                     <span className={styles.cart__svg}>
                         <ShoppingCartSvg />
                     </span>
                     <span className={styles.cart__text}>Корзина</span>
                 </button>
+                ) : (
+                    <button
+                        className={`${styles.cart__btn} ${darkModeClass}`}
+                        onClick={toggleCartDropDown}
+                        >
+                        {/* Здесь по мимо 2 спанов будет условный рендеринг */}
+                        {/* С помощью двойное неравенство значение shoppingCart переобразовываем в bool */}
+                        {!!shoppingCart.length && (
+                            <span className={styles.cart__btn__count}>
+                                {shoppingCart.length}
+                            </span>
+                        )}
+                        <span className={styles.cart__svg}>
+                            <ShoppingCartSvg />
+                        </span>
+                        <span className={styles.cart__text}>Корзина</span>
+                    </button>
+                )}
 
                 <AnimatePresence>
                     {open && (

@@ -14,6 +14,7 @@ import { $user, $userCity } from '@/context/user'
 import styles from '@/styles/order/index.module.scss'
 import spinnerStyles from '@/styles/spinner/spinner.module.scss'
 import OrderAccordion from '@/components/modules/OrderPage/OrderAccordion'
+import { checkPaymentFx, makePaymentFx } from '@/app/api/payment'
 
 const OrderPage = () => {
     const mode = useStore($mode)
@@ -24,56 +25,57 @@ const OrderPage = () => {
     const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
     const [orderIsReady, setOrderIsReady] = useState(false)
     const [agreement, setAgreement] = useState(false)
-    // const spinner = useStore(makePaymentFx.pending)
+    const spinner = useStore(makePaymentFx.pending)
     const router = useRouter()
 
     const handleAgreementChange = () => setAgreement(!agreement)
 
-    // useEffect(() => {
-    //   const paymentId = sessionStorage.getItem('paymentId')
+    useEffect(() => {
+        const paymentId = sessionStorage.getItem('paymentId')
 
-    //   if (paymentId) {
-    //     checkPayment(paymentId)
-    //   }
-    // }, [])
+        if (paymentId) {
+            checkPayment(paymentId)
+        }
+    }, [])
 
-    // const makePay = async () => {
-    //   try {
-    //     const data = await makePaymentFx({
-    //       url: '/payment',
-    //       amount: totalPrice,
-    //       description: `Заказ №1 ${
-    //         userCity.city.length
-    //           ? `Город: ${userCity.city}, улица: ${userCity.street}`
-    //           : ''
-    //       }`,
-    //     })
+    const makePay = async () => {
+        try {
+            const data = await makePaymentFx({
+                url: '/payment',
+                amount: totalPrice,
+                // description: `Заказ №1 ${
+                //     userCity.city.length
+                //         ? `Город: ${userCity.city}, улица: ${userCity.street}`
+                //         : ''
+                // }`,
+            })
+            console.log(data)
 
-    //     sessionStorage.setItem('paymentId', data.id)
-    //     router.push(data.confirmation.confirmation_url)
-    //   } catch (error) {
-    //     toast.error((error as Error).message)
-    //   }
-    // }
+            sessionStorage.setItem('paymentId', data.id)
+            router.push(data.confirmation.confirmation_url)
+        } catch (e) {
+            toast.error((e as Error).message)
+        }
+    }
 
-    // const checkPayment = async (paymentId: string) => {
-    //   try {
-    //     const data = await checkPaymentFx({
-    //       url: '/payment/info',
-    //       paymentId,
-    //     })
+    const checkPayment = async (paymentId: string) => {
+        try {
+            const data = await checkPaymentFx({
+                url: '/payment/info',
+                paymentId,
+            })
 
-    //     if (data.status === 'succeeded') {
-    //       resetCart()
-    //       return
-    //     }
+            if (data.status === 'succeeded') {
+                resetCart()
+                return
+            }
 
-    //     sessionStorage.removeItem('paymentId')
-    //   } catch (error) {
-    //     console.log((error as Error).message)
-    //     resetCart()
-    //   }
-    // }
+            sessionStorage.removeItem('paymentId')
+        } catch (error) {
+            console.log((error as Error).message)
+            resetCart()
+        }
+    }
 
     const resetCart = async () => {
         sessionStorage.removeItem('paymentId')
@@ -132,23 +134,17 @@ const OrderPage = () => {
                             <button
                                 disabled={!(orderIsReady && agreement)}
                                 className={styles.order__pay__btn}
+                                onClick={makePay}
                             >
-                                Подтвердить заказ
+                                {spinner ? (
+                                    <span
+                                        className={spinnerStyles.spinner}
+                                        style={{ top: '6px', left: '47%' }}
+                                    />
+                                ) : (
+                                    'Подтвердить заказ'
+                                )}
                             </button>
-                            {/* <button
-                              disabled={!(orderIsReady && agreement)}
-                              className={styles.order__pay__btn}
-                              // onClick={makePay}
-                            >
-                              {spinner ? (
-                                <span
-                                  className={spinnerStyles.spinner}
-                                  style={{ top: '6px', left: '47%' }}
-                                />
-                              ) : (
-                                'Подтвердить заказ'
-                              )}
-                            </button> */}
 
                             {/* Поле соглашение */}
                             <label
