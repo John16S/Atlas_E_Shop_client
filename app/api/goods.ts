@@ -20,7 +20,8 @@ export const getGoodFx = createEffect(async (url: string) => {
   return data
 })
 
-export const searchPartsFx = createEffect(
+//*Поиск по строчке
+export const searchGoodsFx = createEffect(
   async ({ url, search }: { url: string; search: string }) => {
     const { data } = await api.post(url, { search })
 
@@ -28,7 +29,8 @@ export const searchPartsFx = createEffect(
   }
 )
 
-export const getPartByNameFx = createEffect(
+//* Поиск по имени
+export const getGoodByNameFx = createEffect(
   async ({ url, name }: { url: string; name: string }) => {
     try {
       const { data } = await api.post(url, { name })

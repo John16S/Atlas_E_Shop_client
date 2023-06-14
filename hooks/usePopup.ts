@@ -1,22 +1,26 @@
-import { useEffect, useState } from "react";
+import { setSearchInputZIndex } from '@/context/header'
+import {
+    removeClassNamesForOverlayAndBody,
+    toggleClassNamesForOverlayAndBody,
+} from '@/utils/common'
+import { useEffect, useState } from 'react'
 
 export const usePopup = () => {
-    const [open, setOpen] = useState(false); //по умолчанию закрыто
+    const [open, setOpen] = useState(false) //по умолчанию закрыто
 
     //*функция ктр тоглит open
     const toggleOpen = () => {
         window.scrollTo(0, 0)
         // добавляем классы
-        document.querySelector('.overlay')?.classList.toggle('open')
-        document.querySelector('.body')?.classList.toggle('overlay-hidden')
+        toggleClassNamesForOverlayAndBody()
         setOpen(!open)
     }
     //*функция ктр закрывает бургерменю
     const closePopup = () => {
         // добавляем классы
-        document.querySelector('.overlay')?.classList.remove('open')
-        document.querySelector('.body')?.classList.remove('overlay-hidden')
+        removeClassNamesForOverlayAndBody()
         setOpen(false)
+        setSearchInputZIndex(1)
     }
 
     //*[open] -в зависимость передадим состояние open
@@ -32,5 +36,5 @@ export const usePopup = () => {
     }, [open])
 
     //возвращаем из функции поля...
-    return {toggleOpen, open, closePopup}
-} 
+    return { toggleOpen, open, closePopup }
+}

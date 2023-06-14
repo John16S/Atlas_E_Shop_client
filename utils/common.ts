@@ -12,7 +12,7 @@ export const getWindowWidth = () => {
 export const formatPrice = (x: number) =>
     x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 
-//*Функция для работа с сортировкой
+//*Функция для работа с сортировкой и поиска
 export const createSelectOption = (value: string | number) => ({
     value,
     label: value,
@@ -45,3 +45,16 @@ export const getQueryParamOnFirstRender = (
 ) =>
     router.query[queryName] ||
     router.asPath.match(new RegExp(`[&?]${queryName}=(.*)(&|$)`))
+
+export const toggleClassNamesForOverlayAndBody = (
+    overlayClassName = 'open'
+    ) => {
+    document.querySelector('.overlay')?.classList.toggle(overlayClassName)
+    document.querySelector('.body')?.classList.toggle('overflow-hidden')
+}
+
+export const removeClassNamesForOverlayAndBody = () => {
+    document.querySelector('.overlay')?.classList.remove('open')
+    document.querySelector('.overlay')?.classList.remove('open-search')
+    document.querySelector('.body')?.classList.remove('overflow-hidden')
+}

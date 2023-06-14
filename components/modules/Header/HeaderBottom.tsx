@@ -1,8 +1,6 @@
 import { $mode } from '@/context/mode'
 import { useStore } from 'effector-react'
-import styles from '@/styles/header/header.module.scss'
 import Link from 'next/link'
-import SearchSvg from '@/components/elements/SearchSvg/SearchSvg'
 import SearchInput from '@/components/elements/Header/SearchInput'
 import ModeToggler from '@/components/elements/ModeToggler/ModeToggler'
 import CartPopup from './CartPopup/CartPopup'
@@ -10,6 +8,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import { setDisableCart } from '@/context/shopping-cart'
+import styles from '@/styles/header/header.module.scss'
 
 const HeaderBottom = () => {
     //для того чтоб переключатель theme при адаптиве ушел в бургерменю
@@ -48,11 +47,6 @@ const HeaderBottom = () => {
 
                 <div className={styles.header__search}>
                     <SearchInput />
-                    <button  className={`${styles.header__search__btn} ${darkModeClass}`}>
-                        <span className={styles.header__search__btn__span}>
-                            <SearchSvg />
-                        </span>
-                    </button>
                 </div>
 
                 <div  className={styles.header__shopping_cart}>
