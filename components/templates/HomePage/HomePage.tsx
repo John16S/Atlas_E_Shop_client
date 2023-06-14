@@ -32,7 +32,7 @@ const HomePage = () => {
 
     //*Для alert ктр смотрит на shoppingCart.length
     useEffect(() => {
-        if(shoppingCart.length){
+        if (shoppingCart.length) {
             setShowAlert(true)
             return
         }
@@ -64,13 +64,17 @@ const HomePage = () => {
             <AnimatePresence>
                 {showAlert && (
                     <motion.div
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
-                        exit={{opacity: 0}}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
                         className={`${styles.home__alert} ${darkModeClass}`}
                     >
                         <CartAlert
-                            count={shoppingCart.length}
+                            count={shoppingCart.reduce(
+                                (defaultCount, item) =>
+                                    defaultCount + item.count,
+                                0
+                            )}
                             closeAlert={closeAlert}
                         />
                     </motion.div>

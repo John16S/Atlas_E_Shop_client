@@ -14,10 +14,8 @@ export const toggleCartItem = async (
     username: string,
     goodId: number,
     isInCart: boolean,
-    setSpinner: (arg: boolean) => void
 ) => {
     try {
-        setSpinner(true)
         //*проверяем если товар есть в корзине, то...
         if (isInCart) {
             await removeFromCartFx(`/shopping-cart/removeOne/${goodId}`)
@@ -36,8 +34,6 @@ export const toggleCartItem = async (
         updateShoppingCart(data)
     } catch (e) {
         toast.error((e as Error).message)
-    } finally {
-        setSpinner(false)
     }
 }
 

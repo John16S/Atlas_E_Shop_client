@@ -8,32 +8,16 @@ import CartItemCounter from '@/components/elements/CartItemCounter/CartItemCount
 import styles from '@/styles/cartPopup/cartPopup.module.scss'
 import spinnerStyles from '@/styles/spinner/spinner.module.scss'
 import { IShoppingCartItem } from '@/types/shopping-cart'
-import { useEffect, useState } from 'react'
-import { removeItemFromCart, updateTotalPrice } from '@/utils/shopping-cart'
+import { usePrice } from '@/hooks/usePrice'
 
 const CartPopupItem = ({ item }: { item: IShoppingCartItem }) => {
     const mode = useStore($mode)
     const darkModeClass = mode === 'dark' ? `${styles.dark_mode}` : ''
     const spinnerDarkModeClass =
         mode === 'dark' ? '' : `${spinnerStyles.dark_mode}`
-    // const { price, spinner, decreasePrice, deleteCartItem, increasePrice } =
-    //     usePrice(item.count, item.goodId, item.price)
-
-    const [spinner, setSpinner] = useState(false)
-    const [price, setPrice] = useState(item.price)
     
-    useEffect(() => {
-        setPrice(price * item.count)
-    }, [])
-    //*useEffect - ктр всегда следить за изменением цены
-    useEffect(() => {
-        updateTotalPrice(price, item.goodId)
-    }, [price])
-
-    const increasePrice = () => setPrice(price + item.price) 
-    const decreasePrice = () => setPrice(price - item.price) 
-
-    const deleteCartItem = () => removeItemFromCart(item.goodId) 
+    const { price, spinner, decreasePrice, deleteCartItem, increasePrice } =
+        usePrice(item.count, item.goodId, item.price)
 
     return (
         <li className={styles.cart__popup__list__item}>

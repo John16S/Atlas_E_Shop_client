@@ -1,0 +1,34 @@
+import { useStore } from 'effector-react'
+import { useEffect, useState } from 'react'
+import { removeFromCartFx } from '@/app/api/shopping-cart'
+import { removeItemFromCart, updateTotalPrice } from '@/utils/shopping-cart'
+
+export const usePrice = (
+    count: number,
+    goodId: number,
+    initialPrice: number
+) => {
+    const spinner = useStore(removeFromCartFx.pending)
+    const [price, setPrice] = useState(initialPrice)
+
+    useEffect(() => {
+        setPrice(price * count)
+    }, [])
+    //*useEffect - ктр всегда следить за изменением цены
+    useEffect(() => {
+        updateTotalPrice(price, goodId)
+    }, [price])
+
+    const increasePrice = () => setPrice(price + initialPrice)
+    const decreasePrice = () => setPrice(price - initialPrice)
+
+    const deleteCartItem = () => removeItemFromCart(goodId)
+
+    return {
+        price,
+        spinner,
+        increasePrice,
+        decreasePrice,
+        deleteCartItem,
+    }
+}

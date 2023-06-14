@@ -18,6 +18,7 @@ import { getGoodsFx } from '@/app/api/goods'
 import { $goods, setGoods, setGoodsByPopularity } from '@/context/goods'
 import { toast } from 'react-toastify'
 import GoodAccordion from '@/components/modules/GoodPage/GoodAccordion'
+import { removeFromCartFx } from '@/app/api/shopping-cart'
 
 const GoodPage = () => {
     const mode = useStore($mode)
@@ -29,8 +30,8 @@ const GoodPage = () => {
     const isMobile = useMediaQuery(850)
     // const cartItems = useStore($shoppingCart)
     // const spinnerToggleCart = useStore(removeFromCartFx.pending)
-    const [spinnerToggleCart, setSpinnerToggleCart] = useState(false)
-    const [spinnerSlider, setSpinnerSlider] = useState(false)
+    const spinnerToggleCart = useStore(removeFromCartFx.pending)
+    const spinnerSlider = useStore(getGoodsFx.pending)
 
     //*-------Есть ли товар в корзине-------------------
     const cartItems = useStore($shoppingCart) //получаем доступ к состоянию корзины
@@ -43,20 +44,17 @@ const GoodPage = () => {
 
     const loadGood = async () => {
         try {
-            setSpinnerSlider(true)
             const data = await getGoodsFx('/goods?limit=20&offset=0')
 
             setGoods(data)
             setGoodsByPopularity()
         } catch (e) {
             toast.error((e as Error).message)
-        } finally {
-            setTimeout(() => setSpinnerSlider(false), 1000)
         }
     }
 
     const toggleToCart = () =>
-        toggleCartItem(user.userName, good.id, isInCart, setSpinnerToggleCart)
+        toggleCartItem(user.userName, good.id, isInCart)
 
     return (
         <section>

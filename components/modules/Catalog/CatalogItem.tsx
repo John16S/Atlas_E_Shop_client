@@ -1,6 +1,5 @@
 import { $mode } from '@/context/mode'
 import { useStore } from 'effector-react'
-import { useState } from 'react'
 import { IGood } from '@/types/goods'
 import Link from 'next/link'
 import { formatPrice } from '@/utils/common'
@@ -11,6 +10,7 @@ import styles from '@/styles/catalog/index.module.scss'
 import spinnerStyles from '@/styles/spinner/spinner.module.scss'
 import { toggleCartItem } from '@/utils/shopping-cart'
 import { $user } from '@/context/user'
+import { removeFromCartFx } from '@/app/api/shopping-cart'
 
 const CatalogItem = ({ item }: { item: IGood }) => {
     //стили для тёмный темы
@@ -22,9 +22,9 @@ const CatalogItem = ({ item }: { item: IGood }) => {
     const shoppingCart = useStore($shoppingCart)
     const isInCart = shoppingCart.some((cartItem) => cartItem.goodId === item.id) //*Проверяем что товар находится в карзине?
 
-    const [spinner, setSpinner] = useState(false)
+    const spinner = useStore(removeFromCartFx.pending)
 
-    const toggleToCart = () => toggleCartItem(user.userName, item.id, isInCart, setSpinner)
+    const toggleToCart = () => toggleCartItem(user.userName, item.id, isInCart)
 
     return (
         <li className={`${styles.catalog__list__item} ${darkModeClass}`}>
